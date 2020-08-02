@@ -1,0 +1,47 @@
+{
+    "go.useLanguageServer": true,
+    "timeline.excludeSources": [],
+
+    "[go]": {
+        "editor.snippetSuggestions": "none",
+        "editor.formatOnSave": false,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    },
+    "go.autocompleteUnimportedPackages": true,
+    "go.formatTool": "goformat",
+    "gopls": {
+        "completeUnimported": true,
+        "usePlaceholders": true,
+        "completionDocumentation": true,
+        "deepCompletion": true, 
+        "matcher": "fuzzy",
+        "hoverKind": "SynopsisDocumentation" // No/Synopsis/Full, default Synopsis
+    },
+    
+    "files.eol": "\n", // formatting only supports LF line endings
+
+    "go.languageServerExperimentalFeatures": {
+        "format": true,
+        "autoComplete": true,
+        "rename": true,
+        "goToDefinition": true,
+        "hover": true,
+        "signatureHelp": true,
+        "goToTypeDefinition": true,
+        "goToImplementation": true,
+        "documentSymbols": true,
+        "workspaceSymbols": true,
+        "findReferences": true,
+        "diagnostics": false
+    },
+    "emmet.excludeLanguages": [
+    
+        "markdown"
+    ],
+    "go.addTags": {
+    
+    },
+    "go.gotoSymbol.includeImports": true
+}
