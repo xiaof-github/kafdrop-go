@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -12,37 +11,36 @@ import (
 
 // Sarama configuration options
 var (
-    brokers  = ""
-    version  = ""
+    version  = "2.1.1"
     group    = ""
     topics   = ""
-    assignor = ""
+    assignor = "range"
     oldest   = true
     verbose  = false
 )
 
-func init() {
-    flag.StringVar(&brokers, "brokers", "10.155.200.120:9092", "Kafka bootstrap brokers to connect to, as a comma separated list")
-    flag.StringVar(&group, "group", "sab", "Kafka consumer group definition")
-    flag.StringVar(&version, "version", "2.1.1", "Kafka cluster version")
-    flag.StringVar(&topics, "topics", "test", "Kafka topics to be consumed, as a comma separated list")
-    flag.StringVar(&assignor, "assignor", "range", "Consumer group partition assignment strategy (range, roundrobin, sticky)")
-    flag.BoolVar(&oldest, "oldest", true, "Kafka consumer consume initial offset from oldest")
-    flag.BoolVar(&verbose, "verbose", false, "Sarama logging")
-    flag.Parse()	
+// func init() {
+//     flag.StringVar(&brokers, "brokers", "10.155.200.120:9092", "Kafka bootstrap brokers to connect to, as a comma separated list")
+//     flag.StringVar(&group, "group", "sab", "Kafka consumer group definition")
+//     flag.StringVar(&version, "version", "2.1.1", "Kafka cluster version")
+//     flag.StringVar(&topics, "topics", "test", "Kafka topics to be consumed, as a comma separated list")
+//     flag.StringVar(&assignor, "assignor", "range", "Consumer group partition assignment strategy (range, roundrobin, sticky)")
+//     flag.BoolVar(&oldest, "oldest", true, "Kafka consumer consume initial offset from oldest")
+//     flag.BoolVar(&verbose, "verbose", false, "Sarama logging")
+//     flag.Parse()	
 
-    if len(brokers) == 0 {
-        panic("no Kafka bootstrap brokers defined, please set the -brokers flag")
-    }
+//     if len(brokers) == 0 {
+//         panic("no Kafka bootstrap brokers defined, please set the -brokers flag")
+//     }
 
-    if len(topics) == 0 {
-        panic("no topics given to be consumed, please set the -topics flag")
-    }
+//     if len(topics) == 0 {
+//         panic("no topics given to be consumed, please set the -topics flag")
+//     }
 
-    if len(group) == 0 {
-        panic("no Kafka consumer group defined, please set the -group flag")
-    }
-}
+//     if len(group) == 0 {
+//         panic("no Kafka consumer group defined, please set the -group flag")
+//     }
+// }
 
 func getTopicMsgNum(broker *sarama.Broker, partition map[string]int, topic string) int64 {
     var i int32
@@ -79,7 +77,7 @@ func getTopicMsgNum(broker *sarama.Broker, partition map[string]int, topic strin
     return sum
 }
 
-func consumeMsg(addr []string, topic string, partition int, offset int, len int) []string {
+func consumeMsg(addr []string, topic string, partition int, offset int, len int) ([]string, error) {
     consumer, err := sarama.NewConsumer(addr, nil)
     if err != nil {
         panic(err)
@@ -91,7 +89,7 @@ func consumeMsg(addr []string, topic string, partition int, offset int, len int)
         }
     }()
 
-    partitionConsumer, err := consumer.ConsumePartition("my_topic", 0, OffsetNewest)
+    partitionConsumer, err := consumer.ConsumePartition("my_topic", 0, sarama.OffsetNewest)
     if err != nil {
         panic(err)
     }
@@ -118,11 +116,15 @@ func consumeMsg(addr []string, topic string, partition int, offset int, len int)
     }
 
     log.Printf("Consumed: %d\n", consumed)
+    return []string{"a", "b", "c"} , nil
 }
 
 
 func main() {
     log.Println("Starting kafdrop-go")	
+
+    brokers := []string{"10.155.200.120:9092"}
+    kafkaHost := brokers[0]
 
     if verbose {
         sarama.Logger = log.New(os.Stdout, "[sarama] ", log.LstdFlags)
@@ -155,7 +157,7 @@ func main() {
         config.Consumer.Offsets.Initial = sarama.OffsetOldest
     }
 
-    kafkaHost := "10.155.200.120:9092"
+    
     broker := sarama.NewBroker(kafkaHost)
     err1 := broker.Open(config)
     if err1 != nil {
@@ -284,10 +286,12 @@ func main() {
     b := ofr.GetBlock("PACKET_DNS_RESPONSE", 1)
     fmt.Printf("b: %+v\n", b)
 
-    msg, err := consumeMsg(topic, partition, offset, len)
-    if err != nil {
-        panic("consume msg err")
-    }
+
+    // 消费指定偏移量的数据
+    // msg, err := consumeMsg(topic, partition, offset, len)
+    // if err != nil {
+    //     panic("consume msg err")
+    // }
 
 
     if err = broker.Close(); err != nil {
