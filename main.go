@@ -89,7 +89,7 @@ func consumeMsg(addr []string, topic string, partition int, offset int, len int)
         }
     }()
 
-    partitionConsumer, err := consumer.ConsumePartition("my_topic", 0, sarama.OffsetNewest)
+    partitionConsumer, err := consumer.ConsumePartition(topic, partition, offset)
     if err != nil {
         panic(err)
     }
