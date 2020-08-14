@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/signal"
 
 	"github.com/Shopify/sarama"
 )
@@ -82,6 +81,14 @@ func getTopicMsgNum(broker *sarama.Broker, partition map[string]int, topic strin
     return sum
 }
 
+func consumeTopic(topic string, block *sarama.OffsetResponseBlock, partition int32) {
+    partitionConsumer, err := consumer.ConsumePartition(topic, partition, block.Offset)
+    if err != nil {
+        panic(err)
+    }
+
+}
+
 func consumeMsg(broker *sarama.Broker, addr []string, topic string, partitions map[string]int) ([]string, error) {
     consumer, err := sarama.NewConsumer(addr, nil)
     if err != nil {
@@ -112,11 +119,8 @@ func consumeMsg(broker *sarama.Broker, addr []string, topic string, partitions m
 
     var block *sarama.OffsetResponseBlock
     for i:=0;i<len;i++ {
-        block = res1.GetBlock(topic, i)        
-        partitionConsumer, err := go consumer.ConsumePartition(topic, int32(i), block.Offset)
-        if err != nil {
-            panic(err)
-        }
+        block = res1.GetBlock(topic, int32(i))
+        go consumeTopic(topic, block, int32(i))        
     }  
        
 
