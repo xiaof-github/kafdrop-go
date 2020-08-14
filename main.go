@@ -19,6 +19,11 @@ var (
     verbose  = false
 )
 
+type PartitionOffsets struct {
+    partition []string
+    firstOffsets []int
+}
+
 // func init() {
 //     flag.StringVar(&brokers, "brokers", "10.155.200.120:9092", "Kafka bootstrap brokers to connect to, as a comma separated list")
 //     flag.StringVar(&group, "group", "sab", "Kafka consumer group definition")
@@ -77,7 +82,7 @@ func getTopicMsgNum(broker *sarama.Broker, partition map[string]int, topic strin
     return sum
 }
 
-func consumeMsg(addr []string, topic string, partition int, offset int, len int) ([]string, error) {
+func consumeMsg(broker *sarama.Broker, addr []string, topic string, partitions map[string]int) ([]string, error) {
     consumer, err := sarama.NewConsumer(addr, nil)
     if err != nil {
         panic(err)
@@ -89,10 +94,31 @@ func consumeMsg(addr []string, topic string, partition int, offset int, len int)
         }
     }()
 
-    partitionConsumer, err := consumer.ConsumePartition(topic, partition, offset)
-    if err != nil {
-        panic(err)
+    offsr := sarama.OffsetRequest{
+        Version: 1,		
     }
+
+    len := partitions[topic]
+
+    for i:=0;i<len;i++{
+        offsr.AddBlock(topic, int32(i), sarama.OffsetOldest, 999999999)
+    }
+
+    // offsr.AddBlock("PACKET_DNS_RESPONSE", 3, sarama.OffsetNewest, 999999999)
+    res1, err1 := broker.GetAvailableOffsets(&offsr)
+    if err1 != nil {
+        panic("broker offset error")
+    }
+
+    var block *sarama.OffsetResponseBlock
+    for i:=0;i<len;i++ {
+        block = res1.GetBlock(topic, i)        
+        partitionConsumer, err := go consumer.ConsumePartition(topic, int32(i), block.Offset)
+        if err != nil {
+            panic(err)
+        }
+    }  
+       
 
     defer func() {
         if err := partitionConsumer.Close(); err != nil {
@@ -100,22 +126,9 @@ func consumeMsg(addr []string, topic string, partition int, offset int, len int)
         }
     }()
 
-    signals := make(chan os.Signal, 1)
-    signal.Notify(signals, os.Interrupt)
+    
 
-    consumed := 0
-    ConsumerLoop:
-    for {
-        select {
-        case msg := <-partitionConsumer.Messages():
-            log.Printf("Consumed message offset %d\n", msg.Offset)
-            consumed++
-        case <-signals:
-            break ConsumerLoop
-        }
-    }
-
-    log.Printf("Consumed: %d\n", consumed)
+    log.Printf("Consumed: \n")
     return []string{"a", "b", "c"} , nil
 }
 
@@ -287,7 +300,7 @@ func main() {
     fmt.Printf("b: %+v\n", b)
 
 
-    // 消费指定偏移量的数据
+    // 消费指定topic,消息个数的数据
     // msg, err := consumeMsg(topic, partition, offset, len)
     // if err != nil {
     //     panic("consume msg err")

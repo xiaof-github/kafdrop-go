@@ -1,4 +1,4 @@
-package maina
+package main
 
 import (
 	"fmt"
@@ -12,10 +12,11 @@ func a() {
     }
 }
 
-func b() {
+func b() int {
     for i := 1; i < 10; i++ {
         fmt.Println("B:", i)
     }
+    return 0
 }
 
 func main() {
