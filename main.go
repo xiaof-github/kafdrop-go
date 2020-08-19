@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
+	"time"
 
 	"github.com/Shopify/sarama"
 )
@@ -17,6 +19,8 @@ var (
     oldest   = true
     verbose  = false
 )
+
+var wg sync.WaitGroup
 
 type PartitionOffsets struct {
     partition []string
@@ -81,12 +85,33 @@ func getTopicMsgNum(broker *sarama.Broker, partition map[string]int, topic strin
     return sum
 }
 
-func consumeTopic(topic string, block *sarama.OffsetResponseBlock, partition int32) {
+func consumeTopic(consumer sarama.Consumer, topic string, block *sarama.OffsetResponseBlock, partition int32) {
+    
     partitionConsumer, err := consumer.ConsumePartition(topic, partition, block.Offset)
     if err != nil {
-        panic(err)
+        panic(err)    
     }
 
+    defer func() {
+        if err := partitionConsumer.Close(); err != nil {
+            log.Fatalln(err)
+        }
+    }()
+
+    defer wg.Done()
+
+    consumed := 0
+    for {
+        select {
+        case msg := <-partitionConsumer.Messages():
+            log.Printf("Consumed message offset %d\n ,key %s\n, value %s\n", msg.Offset, msg.Key, msg.Value)
+            consumed++;
+        default :
+            log.Printf("consumed: %d", consumed)
+            time.Sleep(time.Second)
+        }
+    }
+    
 }
 
 func consumeMsg(broker *sarama.Broker, addr []string, topic string, partitions map[string]int) ([]string, error) {
@@ -95,19 +120,19 @@ func consumeMsg(broker *sarama.Broker, addr []string, topic string, partitions m
         panic(err)
     }
 
-    defer func() {
-        if err := consumer.Close(); err != nil {
-            log.Fatalln(err)
-        }
-    }()
+    // defer func() {
+    //     if err := consumer.Close(); err != nil {
+    //         log.Fatalln(err)
+    //     }
+    // }()
 
     offsr := sarama.OffsetRequest{
         Version: 1,		
     }
 
-    len := partitions[topic]
+    partitionsNum := partitions[topic]
 
-    for i:=0;i<len;i++{
+    for i:=0;i<partitionsNum;i++{
         offsr.AddBlock(topic, int32(i), sarama.OffsetOldest, 999999999)
     }
 
@@ -118,20 +143,16 @@ func consumeMsg(broker *sarama.Broker, addr []string, topic string, partitions m
     }
 
     var block *sarama.OffsetResponseBlock
-    for i:=0;i<len;i++ {
-        block = res1.GetBlock(topic, int32(i))
-        go consumeTopic(topic, block, int32(i))        
-    }  
-       
-
-    defer func() {
-        if err := partitionConsumer.Close(); err != nil {
-            log.Fatalln(err)
-        }
-    }()
-
     
-
+    for i:=0;i<partitionsNum;i++ {
+        block = res1.GetBlock(topic, int32(i))
+        wg.Add(1)
+        go consumeTopic(consumer, topic, block, int32(i))        
+    }  
+    
+    
+    
+    wg.Wait()
     log.Printf("Consumed: \n")
     return []string{"a", "b", "c"} , nil
 }
@@ -305,10 +326,11 @@ func main() {
 
 
     // 消费指定topic,消息个数的数据
-    // msg, err := consumeMsg(topic, partition, offset, len)
-    // if err != nil {
-    //     panic("consume msg err")
-    // }
+    msg, err := consumeMsg(broker, brokers, "PACKET_DNS_RESPONSE", partitions)
+    if err != nil {
+        fmt.Printf("consume msg err, %+v", msg)
+        panic("consume msg err")
+    }
 
 
     if err = broker.Close(); err != nil {
