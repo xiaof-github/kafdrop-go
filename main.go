@@ -104,8 +104,9 @@ func consumeTopic(consumer sarama.Consumer, topic string, block *sarama.OffsetRe
     for {
         select {
         case msg := <-partitionConsumer.Messages():
-            log.Printf("Consumed message offset %d\n ,key %s\n, value %s\n", msg.Offset, msg.Key, msg.Value)
+            log.Printf("Consumed message partition %d\n offset %d\n key %s\n value %s\n", partition, msg.Offset, msg.Key, msg.Value)
             consumed++;
+            time.Sleep(time.Second)
         default :
             log.Printf("consumed: %d", consumed)
             time.Sleep(time.Second)
@@ -326,6 +327,7 @@ func main() {
 
 
     // 消费指定topic,消息个数的数据
+    len := 99
     msg, err := consumeMsg(broker, brokers, "PACKET_DNS_RESPONSE", partitions)
     if err != nil {
         fmt.Printf("consume msg err, %+v", msg)
