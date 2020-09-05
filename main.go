@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/Shopify/sarama"
+	"gopkg.in/jcmturner/gokrb5.v7/messages"
 )
 
 // Sarama configuration options
@@ -26,6 +27,7 @@ type PartitionOffsets struct {
     partition []string
     firstOffsets []int
 }
+
 
 // func init() {
 //     flag.StringVar(&brokers, "brokers", "10.155.200.120:9092", "Kafka bootstrap brokers to connect to, as a comma separated list")
@@ -106,7 +108,10 @@ func consumeTopic(consumer sarama.Consumer, topic string, block *sarama.OffsetRe
         case msg := <-partitionConsumer.Messages():
             log.Printf("Consumed message partition %d\n offset %d\n key %s\n value %s\n", partition, msg.Offset, msg.Key, msg.Value)
             consumed++;
+            messages[topic] = append(messages[topic], msg.Value)
             time.Sleep(time.Second)
+            if (consumed > 1000)
+                break
         default :
             log.Printf("consumed: %d", consumed)
             time.Sleep(time.Second)
@@ -115,7 +120,7 @@ func consumeTopic(consumer sarama.Consumer, topic string, block *sarama.OffsetRe
     
 }
 
-func consumeMsg(broker *sarama.Broker, addr []string, topic string, partitions map[string]int) ([]string, error) {
+func consumeMsg(broker *sarama.Broker, addr []string, topic string, partitions map[string]int, len int) ([]string, error) {
     consumer, err := sarama.NewConsumer(addr, nil)
     if err != nil {
         panic(err)
@@ -162,8 +167,10 @@ func consumeMsg(broker *sarama.Broker, addr []string, topic string, partitions m
 func main() {
     log.Println("Starting kafdrop-go")	
 
-    brokers := []string{"10.155.200.120:9092"}
-    kafkaHost := brokers[0]
+    messages := make(map[string][]string)
+
+    addrs := []string{"10.155.200.120:9092"}
+    kafkaHost := addrs[0]
 
     if verbose {
         sarama.Logger = log.New(os.Stdout, "[sarama] ", log.LstdFlags)
@@ -326,9 +333,10 @@ func main() {
     fmt.Printf("b: %+v\n", b)
 
 
-    // 消费指定topic,消息个数的数据
-    len := 99
-    msg, err := consumeMsg(broker, brokers, "PACKET_DNS_RESPONSE", partitions)
+    // 消费指定topic,1000个消息保存到本地，返回给前端
+    count := 1000
+    topic1 := "PACKET_DNS_RESPONSE"
+    msg, err := consumeMsg(broker, addrs, topic1, partitions, count)
     if err != nil {
         fmt.Printf("consume msg err, %+v", msg)
         panic("consume msg err")
