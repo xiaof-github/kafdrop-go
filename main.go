@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/Shopify/sarama"
-	"gopkg.in/jcmturner/gokrb5.v7/messages"
 )
 
 // Sarama configuration options
@@ -22,6 +21,7 @@ var (
 )
 
 var wg sync.WaitGroup
+var messages map[string][][]byte
 
 type PartitionOffsets struct {
     partition []string
@@ -110,11 +110,12 @@ func consumeTopic(consumer sarama.Consumer, topic string, block *sarama.OffsetRe
             consumed++;
             messages[topic] = append(messages[topic], msg.Value)
             time.Sleep(time.Second)
-            if (consumed > 1000)
+            if (consumed > 1000) {
                 break
+            }                
         default :
             log.Printf("consumed: %d", consumed)
-            time.Sleep(time.Second)
+            time.Sleep(10*time.Second)
         }
     }
     
@@ -165,9 +166,9 @@ func consumeMsg(broker *sarama.Broker, addr []string, topic string, partitions m
 
 
 func main() {
-    log.Println("Starting kafdrop-go")	
+    log.Println("Starting kafdrop-go")
 
-    messages := make(map[string][]string)
+    messages = make(map[string][][]byte)
 
     addrs := []string{"10.155.200.120:9092"}
     kafkaHost := addrs[0]
