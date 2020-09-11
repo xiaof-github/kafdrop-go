@@ -87,7 +87,7 @@ func getTopicMsgNum(broker *sarama.Broker, partition map[string]int, topic strin
     return sum
 }
 
-func consumeTopic(consumer sarama.Consumer, topic string, block *sarama.OffsetResponseBlock, partition int32) {
+func consumeTopic(consumer sarama.Consumer, topic string, block *sarama.OffsetResponseBlock, partition int32, len int) {
     
     partitionConsumer, err := consumer.ConsumePartition(topic, partition, block.Offset)
     if err != nil {
@@ -110,7 +110,7 @@ func consumeTopic(consumer sarama.Consumer, topic string, block *sarama.OffsetRe
             consumed++;
             messages[topic] = append(messages[topic], msg.Value)
             time.Sleep(time.Second)
-            if (consumed > 1000) {
+            if (consumed > len) {
                 break
             }                
         default :
@@ -154,7 +154,7 @@ func consumeMsg(broker *sarama.Broker, addr []string, topic string, partitions m
     for i:=0;i<partitionsNum;i++ {
         block = res1.GetBlock(topic, int32(i))
         wg.Add(1)
-        go consumeTopic(consumer, topic, block, int32(i))        
+        go consumeTopic(consumer, topic, block, int32(i), len)
     }  
     
     
@@ -172,6 +172,7 @@ func main() {
 
     addrs := []string{"10.155.200.120:9092"}
     kafkaHost := addrs[0]
+    topic1 := "PACKET_DNS_RESPONSE"
 
     if verbose {
         sarama.Logger = log.New(os.Stdout, "[sarama] ", log.LstdFlags)
@@ -335,8 +336,8 @@ func main() {
 
 
     // 消费指定topic,1000个消息保存到本地，返回给前端
-    count := 1000
-    topic1 := "PACKET_DNS_RESPONSE"
+    count := 50
+    
     msg, err := consumeMsg(broker, addrs, topic1, partitions, count)
     if err != nil {
         fmt.Printf("consume msg err, %+v", msg)
