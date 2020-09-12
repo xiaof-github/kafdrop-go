@@ -13,8 +13,7 @@ import (
 // Sarama configuration options
 var (
     version  = "2.1.1"
-    group    = ""
-    topics   = ""
+    group    = ""    
     assignor = "range"
     oldest   = true
     verbose  = false
@@ -69,7 +68,7 @@ func getTopicMsgNum(broker *sarama.Broker, partition map[string]int, topic strin
         offsrEnd.AddBlock(topic, i, sarama.OffsetNewest, 999999999)
     }
 
-    // offsr.AddBlock("PACKET_DNS_RESPONSE", 3, sarama.OffsetNewest, 999999999)
+    // offsr.AddBlock(topic1, 3, sarama.OffsetNewest, 999999999)
     res1, err1 := broker.GetAvailableOffsets(&offsr)
     if err1 != nil {
         panic("broker offset error")
@@ -143,7 +142,7 @@ func consumeMsg(broker *sarama.Broker, addr []string, topic string, partitions m
         offsr.AddBlock(topic, int32(i), sarama.OffsetOldest, 999999999)
     }
 
-    // offsr.AddBlock("PACKET_DNS_RESPONSE", 3, sarama.OffsetNewest, 999999999)
+    // offsr.AddBlock(topic1, 3, sarama.OffsetNewest, 999999999)
     res1, err1 := broker.GetAvailableOffsets(&offsr)
     if err1 != nil {
         panic("broker offset error")
@@ -170,9 +169,9 @@ func main() {
 
     messages = make(map[string][][]byte)
 
-    addrs := []string{"10.155.200.120:9092"}
+    addrs := []string{"kafka-1:9092"}
     kafkaHost := addrs[0]
-    topic1 := "PACKET_DNS_RESPONSE"
+    topic1 := "MAIN_PACKET_HTTP_REQUEST"
 
     if verbose {
         sarama.Logger = log.New(os.Stdout, "[sarama] ", log.LstdFlags)
@@ -233,26 +232,26 @@ func main() {
     }
 
     // 计算topic可消费消息总量
-    sum := getTopicMsgNum(broker, partitions, "PACKET_DNS_RESPONSE")
-    fmt.Printf("topic[%s], sum: %d\n", "PACKET_DNS_RESPONSE", sum)
+    sum := getTopicMsgNum(broker, partitions, topic1)
+    fmt.Printf("topic[%s], sum: %d\n", topic1, sum)
 
-    tp := map[string][]int32{
-        "PACKET_DNS_RESPONSE":[]int32{0,1},
-    }
+    // tp := map[string][]int32{
+    //     topic1:[]int32{0,1},
+    // }
 
     // ConsumerGroup已消费的Topic, partition的偏移量
     offr := sarama.OffsetFetchRequest{
         Version: 5,
-        ConsumerGroup: "dns_response_slbsdc",
+        ConsumerGroup: "group4",
     }
-    offr.AddPartition("PACKET_DNS_RESPONSE", 1)	
+    offr.AddPartition(topic1, 1)	
 
     res, err := broker.FetchOffset(&offr)
     if err != nil {
         panic("broker fetchoffset error")
     }
     fmt.Printf("res: %+v\n", res)
-    v1 := res.GetBlock("PACKET_DNS_RESPONSE", 1)
+    v1 := res.GetBlock(topic1, 1)
     fmt.Printf("v1: %+v\n", v1)	
 
     // 当前Topic, partition可消费的最小偏移量
@@ -260,45 +259,45 @@ func main() {
         Version: 1,		
     }
 
-    offsr.AddBlock("PACKET_DNS_RESPONSE", 1, sarama.OffsetOldest, 999999999)
-    offsr.AddBlock("PACKET_DNS_RESPONSE", 2, sarama.OffsetOldest, 999999999)
-    offsr.AddBlock("PACKET_DNS_RESPONSE", 3, sarama.OffsetOldest, 999999999)
-    // offsr.AddBlock("PACKET_DNS_RESPONSE", 3, sarama.OffsetNewest, 999999999)
+    offsr.AddBlock(topic1, 1, sarama.OffsetOldest, 999999999)
+    offsr.AddBlock(topic1, 2, sarama.OffsetOldest, 999999999)
+    offsr.AddBlock(topic1, 3, sarama.OffsetOldest, 999999999)
+    // offsr.AddBlock(topic1, 3, sarama.OffsetNewest, 999999999)
     res1, err := broker.GetAvailableOffsets(&offsr)
     if err != nil {
         panic("broker offset error")
     }
     fmt.Printf("res: %+v\n", res1)
-    o1 := res1.GetBlock("PACKET_DNS_RESPONSE", 1)
+    o1 := res1.GetBlock(topic1, 1)
     fmt.Printf("o1: %+v\n", o1)
-    o2 := res1.GetBlock("PACKET_DNS_RESPONSE", 2)
+    o2 := res1.GetBlock(topic1, 2)
     fmt.Printf("o2: %+v\n", o2)
-    o3 := res1.GetBlock("PACKET_DNS_RESPONSE", 3)
+    o3 := res1.GetBlock(topic1, 3)
     fmt.Printf("o3: %+v\n", o3)
 
     // 当前Topic, partition可消费的最大偏移量
-    offsr.AddBlock("PACKET_DNS_RESPONSE", 1, sarama.OffsetNewest, 999999999)
-    offsr.AddBlock("PACKET_DNS_RESPONSE", 2, sarama.OffsetNewest, 999999999)
-    offsr.AddBlock("PACKET_DNS_RESPONSE", 3, sarama.OffsetNewest, 999999999)
-    // offsr.AddBlock("PACKET_DNS_RESPONSE", 3, sarama.OffsetNewest, 999999999)
+    offsr.AddBlock(topic1, 1, sarama.OffsetNewest, 999999999)
+    offsr.AddBlock(topic1, 2, sarama.OffsetNewest, 999999999)
+    offsr.AddBlock(topic1, 3, sarama.OffsetNewest, 999999999)
+    // offsr.AddBlock(topic1, 3, sarama.OffsetNewest, 999999999)
     res1, err = broker.GetAvailableOffsets(&offsr)
     if err != nil {
         panic("broker offset error")
     }
     fmt.Printf("res: %+v\n", res1)
-    n1 := res1.GetBlock("PACKET_DNS_RESPONSE", 1)
+    n1 := res1.GetBlock(topic1, 1)
     fmt.Printf("n1: %+v\n", n1)
-    n2 := res1.GetBlock("PACKET_DNS_RESPONSE", 2)
+    n2 := res1.GetBlock(topic1, 2)
     fmt.Printf("n2: %+v\n", n2)
-    n3 := res1.GetBlock("PACKET_DNS_RESPONSE", 3)
+    n3 := res1.GetBlock(topic1, 3)
     fmt.Printf("n3: %+v\n", n3)
 
     // partition lag, lag = lastOffset - curOffset
-    p1Lag := n1.Offset - v1.Offset
-    fmt.Printf("Topic: PACKET_DNS_RESPONSE, Partition: 1, lag: %d\n", p1Lag)
+    // p1Lag := n1.Offset - v1.Offset
+    // fmt.Printf("Topic: %s, Partition: 1, lag: %d\n", topic1, p1Lag)
 
 
-    client, err := sarama.NewClient([]string{"10.155.200.120:9092"}, config)
+    client, err := sarama.NewClient(addrs, config)
     if err != nil {
         panic("client create error")
     }
@@ -313,30 +312,30 @@ func main() {
         // fmt.Println(e)
         _ = tv1		
     }
-    abc, e := client.GetOffset("PACKET_DNS_RESPONSE", 1, sarama.OffsetOldest)
+    abc, e := client.GetOffset(topic1, 1, sarama.OffsetOldest)
     fmt.Printf("first offset: %+v,",abc)
     fmt.Println(e)
-    abc, e = client.GetOffset("PACKET_DNS_RESPONSE", 1, sarama.OffsetNewest)
+    abc, e = client.GetOffset(topic1, 1, sarama.OffsetNewest)
     fmt.Printf("last offset: %+v,",abc)
     fmt.Println(e)
 
     
     // ConsumerGroup已消费的Topic, partition的偏移量，last offset减去这个偏移量就是lag
-    clusterAdmin, err := sarama.NewClusterAdminFromClient(client)
-    if err != nil {
-        panic("get clusterAdmin err")
-    }
+    // clusterAdmin, err := sarama.NewClusterAdminFromClient(client)
+    // if err != nil {
+    //     panic("get clusterAdmin err")
+    // }
     
-    ofr, err := clusterAdmin.ListConsumerGroupOffsets("dns_response_slbsdc", tp)
-    if err != nil {
-        panic("get ofr err")
-    }
-    b := ofr.GetBlock("PACKET_DNS_RESPONSE", 1)
-    fmt.Printf("b: %+v\n", b)
+    // ofr, err := clusterAdmin.ListConsumerGroupOffsets("dns_response_slbsdc", tp)
+    // if err != nil {
+    //     panic("get ofr err")
+    // }
+    // b := ofr.GetBlock(topic1, 1)
+    // fmt.Printf("b: %+v\n", b)
 
 
     // 消费指定topic,1000个消息保存到本地，返回给前端
-    count := 50
+    count := 20
     
     msg, err := consumeMsg(broker, addrs, topic1, partitions, count)
     if err != nil {
