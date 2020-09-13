@@ -108,14 +108,15 @@ func consumeTopic(consumer sarama.Consumer, topic string, block *sarama.OffsetRe
             log.Printf("Consumed message partition %d\n offset %d\n key %s\n value %s\n", partition, msg.Offset, msg.Key, msg.Value)
             consumed++;
             messages[topic] = append(messages[topic], msg.Value)
-            time.Sleep(time.Second)
-            if (consumed > len) {
-                break
-            }                
+            time.Sleep(time.Second)            
         default :
             log.Printf("consumed: %d", consumed)
             time.Sleep(10*time.Second)
         }
+        if (consumed > len) {
+            log.Printf("consumed: %d, want: %d", consumed, len)
+            break
+        }                
     }
     
 }
@@ -171,7 +172,7 @@ func main() {
 
     addrs := []string{"kafka-1:9092"}
     kafkaHost := addrs[0]
-    topic1 := "MAIN_PACKET_HTTP_REQUEST"
+    topic1 := "my_topic"
 
     if verbose {
         sarama.Logger = log.New(os.Stdout, "[sarama] ", log.LstdFlags)
@@ -204,7 +205,6 @@ func main() {
         config.Consumer.Offsets.Initial = sarama.OffsetOldest
     }
 
-    
     broker := sarama.NewBroker(kafkaHost)
     err1 := broker.Open(config)
     if err1 != nil {
@@ -302,6 +302,17 @@ func main() {
         panic("client create error")
     }
     defer client.Close()
+    // 获取broker信息
+    brokers := client.Brokers()
+    for _, bro := range brokers {
+        fmt.Println(bro.Addr())
+    }
+    brok, ok := client.Controller()
+    if ok != nil {
+        panic("controller")
+    }
+    fmt.Printf("controller: %s\n", brok.Addr())
+
     // 获取主题的名称集合
     topics, err := client.Topics()
     if err != nil {
@@ -335,7 +346,7 @@ func main() {
 
 
     // 消费指定topic,1000个消息保存到本地，返回给前端
-    count := 20
+    count := 1
     
     msg, err := consumeMsg(broker, addrs, topic1, partitions, count)
     if err != nil {
