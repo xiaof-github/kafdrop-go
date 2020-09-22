@@ -17,7 +17,8 @@ func main() {
 	config.Producer.Return.Successes = true
 
 	// 使用给定代理地址和配置创建一个同步生产者
-	producer, err := sarama.NewSyncProducer([]string{"kafka-1:9092"}, config)
+	// producer, err := sarama.NewSyncProducer([]string{"kafka-1:9092"}, config)
+	producer, err := sarama.NewSyncProducer([]string{"10.155.200.106:9092"}, config)
 	if err != nil {
 		panic(err)
 	}
@@ -27,8 +28,8 @@ func main() {
 	//构建发送的消息，
 	msg := &sarama.ProducerMessage {
 		//Topic: "test",//包含了消息的主题
-		Partition: int32(10),//
-		Key:        sarama.StringEncoder("key"),//
+		Partition: int32(20),//
+		Key:        nil,//
 	}
 
 	var value string
