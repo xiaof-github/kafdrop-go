@@ -170,7 +170,7 @@ func main() {
 
     messages = make(map[string][][]byte)
 
-    addrs := []string{"kafka-1:9092"}
+    addrs := []string{"10.155.200.108:9092"}
     kafkaHost := addrs[0]
     topic1 := "my_topic"
 
@@ -210,6 +210,24 @@ func main() {
     if err1 != nil {
         panic(err1)
     }
+
+    client, err := sarama.NewClient(addrs, config)
+    if err != nil {
+        panic("client create error")
+    }
+    defer client.Close()
+    // 获取broker信息
+    brokers := client.Brokers()
+    for _, bro := range brokers {
+        fmt.Println(bro.Addr())
+    }
+    // 获取controller信息
+    brok, ok := client.Controller()
+    if ok != nil {
+        panic("controller")
+    }
+    fmt.Printf("controller: %s\n", brok.Addr())
+
     // 当前topic和partition元数据
     request := sarama.MetadataRequest{ /*Topics: []string{"abba"}*/ }
     response, err := broker.GetMetadata(&request)
@@ -228,7 +246,7 @@ func main() {
     for _, v := range response.Topics {
         topics1 = append(topics1, v.Name)
         partitions[v.Name] = len(v.Partitions)
-        // fmt.Printf("v.Name: %+v, v.Partitions: %d\n", v.Name, partitions[v.Name])
+        fmt.Printf("v.Name: %+v, v.Partitions: %d\n", v.Name, partitions[v.Name])
     }
 
     // 计算topic可消费消息总量
@@ -297,21 +315,7 @@ func main() {
     // fmt.Printf("Topic: %s, Partition: 1, lag: %d\n", topic1, p1Lag)
 
 
-    client, err := sarama.NewClient(addrs, config)
-    if err != nil {
-        panic("client create error")
-    }
-    defer client.Close()
-    // 获取broker信息
-    brokers := client.Brokers()
-    for _, bro := range brokers {
-        fmt.Println(bro.Addr())
-    }
-    brok, ok := client.Controller()
-    if ok != nil {
-        panic("controller")
-    }
-    fmt.Printf("controller: %s\n", brok.Addr())
+
 
     // 获取主题的名称集合
     topics, err := client.Topics()
