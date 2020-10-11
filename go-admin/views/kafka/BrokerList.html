@@ -20,75 +20,34 @@
                         <i class="ace-icon fa fa-home home-icon"></i>
                         <a href="#">首页</a>
                     </li>
-                    <li class="active">KafkaTopic</li>
+                    <li class="active">Broker</li>
                 </ul><!-- /.breadcrumb -->
             </div>
 
             <div class="page-content">
                 <div class="page-header">
                     <h1>
-                        Topic列表
+                        Broker列表
                     </h1>
                 </div>
 
                 <div class="row">
                     <div class="col-xs-12">
-                        <div class="col-sm-1">
-                                <button onclick="showEditWindow(0);" role="button" class="btn btn-sm btn-primary" data-toggle="modal">
-                                    <i class="ace-icon fa fa-plus"></i>
-                                    增加
-                                </button>
-                        </div><!-- /.col -->
-                        <div class="col-sm-3">
-                            <form action="/admin/userInfo/list" id="search-from" method="get">
-                                
-                                <input type="text" name="Name" placeholder="用户名" class="col-xs-10 col-sm-3" value="{{.Name}}">
-                                 <button onclick="$('#search-from').submit();" role="button" class="btn btn-sm btn-primary" data-toggle="modal">
-                                    <i class="ace-icon fa fa-search"></i>
-                                    查询
-                                </button>
-                            </form>
-                        </div><!-- /.col -->
-
                         <p class="row">&nbsp;</p>
                         <div class="row">
                             <div class="col-xs-12">
                                 <table id="simple-table" class="table  table-bordered table-hover">
                                     <tr>
                                         <th>Id</th>
-                                        <th>姓名</th>
-                                        <th>生日</th>
-                                        <th>性别</th>
-                                        <th>Email</th>
-                                        <th>电话</th>
-                                        <th>状态</th>
-                                        <th>创建时间</th>
-                                        <th>更新时间</th>
-                                        <th>操作</th>
+                                        <th>地址</th>
+                                        <th>Controller</th>                                        
                                     </tr>
-                                    {{range .List}}
+                                    {{range .brokerList}}
                                     <tr>
                                         
                                         <td>{{.Id}}</td>
-                                        <td>{{.Name}}</td>
-                                        <td>{{.BirthDate}}</td>
-                                        <td>{{.Gender}}</td>
-                                        <td>{{.Email}}</td>
-                                        <td>{{.Phone}}</td>
-                                        <td>{{.Status}}</td>
-                                        <td>{{date .CreateTime "2006-01-02 15:04:05"}}</td>
-                                        <td>{{date .UpdateTime "2006-01-02 15:04:05"}}</td>
-
-                                        <td>
-                                            <div class="hidden-sm hidden-xs btn-group">
-                                                <button class="btn btn-xs btn-info" onclick="showEditWindow('{{.Id}}');">
-                                                    <i class="ace-icon fa fa-pencil bigger-120"></i>
-                                                </button>
-                                                <button class="btn btn-xs btn-danger" onclick="deleteConfirm('{{.Id}}');">
-                                                    <i class="ace-icon fa fa-trash-o bigger-120"></i>
-                                                </button>
-                                            </div>
-                                        </td>
+                                        <td>{{.Addr}}</td>
+                                        <td>{{.Controller}}</td>                                        
                                     </tr>
                                     {{end}}
                                 </table>

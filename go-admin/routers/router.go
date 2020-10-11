@@ -13,6 +13,9 @@ func init() {
 	beego.Router("/admin/userInfo/save", userInfoController, "post:Save")
 	beego.Router("/admin/userInfo/list", userInfoController, "get:List")
 
-	kafkaController := &controllers.KafkaController{}
-	beego.Router("/admin/kafka/brokerList", kafkaController, "get:BrokerList")
+	kafkaBrokerController := &controllers.KafkaBrokerController{}
+	beego.Router("/admin/kafka/brokerList", kafkaBrokerController, "get:BrokerList")
+
+	kafkaTopicController := &controllers.KafkaTopicController{}
+	beego.Router("/admin/kafka/topicList", kafkaTopicController, "get:TopicList")
 }

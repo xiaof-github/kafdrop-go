@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
+	"github.com/golangpkg/go-admin/models"
 )
 
 type KafkaBrokerController struct {
@@ -12,11 +13,13 @@ type KafkaBrokerController struct {
 
 
 //返回broker数据
-func (c *KafkaBrokerController) List() {
+func (c *KafkaBrokerController) BrokerList() {	
 	
-	
-	c.Data["List"] = "Hello world"	
-	logs.Info("dataList :")
+	dataList, err := models.GetBrokers()	
+	if err == nil {
+		c.Data["brokerList"] = dataList
+	}	
+	logs.Info("brokerList :", dataList)
 	c.TplName = "kafka/BrokerList.html"
 
 }
