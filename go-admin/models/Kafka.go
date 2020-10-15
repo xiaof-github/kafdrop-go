@@ -7,7 +7,7 @@ type KafkaBroker struct {
 }
 
 func GetBrokers() (dataList []interface{}, err error) {
-	dataList = make([]interface{}, 10)
+	dataList = make([]interface{}, 0)
 	broker := KafkaBroker{
 		Id:         1,
 		Addr:       "192.168.1.1",
