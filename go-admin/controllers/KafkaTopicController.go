@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
+	"github.com/golangpkg/go-admin/models"
 )
 
 type KafkaTopicController struct {
@@ -15,8 +16,11 @@ type KafkaTopicController struct {
 func (c *KafkaTopicController) TopicList() {
 	
 	
-	c.Data["List"] = "Hello world"	
-	logs.Info("dataList :")
+	dataList, err := models.GetTopics()	
+	if err == nil {
+		c.Data["topicList"] = dataList
+	}	
+	logs.Info("topicList :", dataList)	
 	c.TplName = "kafka/TopicList.html"
 
 }

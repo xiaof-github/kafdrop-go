@@ -6,6 +6,22 @@ type KafkaBroker struct {
 	Controller bool   // 是否controller
 }
 
+type KafkaTopic struct {
+	Name          string
+	PartitionSize int32
+}
+
+func GetTopics() (dataList []interface{}, err error) {
+	dataList = make([]interface{}, 0)
+	topic := KafkaTopic{
+		Name:          "PACKET",
+		PartitionSize: 10,
+	}
+
+	dataList = append(dataList, topic)
+	return dataList, nil
+}
+
 func GetBrokers() (dataList []interface{}, err error) {
 	dataList = make([]interface{}, 0)
 	broker := KafkaBroker{
