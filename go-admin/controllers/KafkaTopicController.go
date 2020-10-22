@@ -25,3 +25,15 @@ func (c *KafkaTopicController) TopicList() {
 
 }
 
+// 返回消息数据
+func (c *KafkaTopicController) TopicMessage() {
+
+	//获得topic
+	topic, _ := c.GetString("TOPIC", "test")
+	data, err := models.GetTopicMessages()	
+	if err == nil {
+		c.Data["topicMessage"] = data
+	}	
+	logs.Info("topicMessage :", data)	
+	c.TplName = "kafka/TopicMessage.html"
+}

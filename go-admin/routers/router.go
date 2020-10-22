@@ -18,4 +18,5 @@ func init() {
 
 	kafkaTopicController := &controllers.KafkaTopicController{}
 	beego.Router("/admin/kafka/topicList", kafkaTopicController, "get:TopicList")
+	beego.Router("/admin/kafka/topicMessage", kafkaTopicController, "get:TopicMessage")
 }

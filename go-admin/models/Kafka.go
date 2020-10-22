@@ -11,6 +11,32 @@ type KafkaTopic struct {
 	PartitionSize int32
 }
 
+type MessageBlock struct {
+	PartitionId int32
+	Message     string
+}
+
+type TopicMessages struct {
+	Topic   string
+	Message []MessageBlock
+}
+
+// 获取Topic消息
+func GetTopicMessages(topic string) (topicMessage TopicMessages, err error) {
+	var mb []MessageBlock
+	mb = make([]MessageBlock, 0)
+	mb = append(mb, MessageBlock{
+		PartitionId: 0,
+		Message:     "test",
+	})
+	topicMessage = TopicMessages{
+		Topic:   topic,
+		Message: mb,
+	}
+	return topicMessage, nil
+}
+
+// GetTopics: 获取topic列表
 func GetTopics() (dataList []interface{}, err error) {
 	dataList = make([]interface{}, 0)
 	topic := KafkaTopic{
@@ -22,6 +48,7 @@ func GetTopics() (dataList []interface{}, err error) {
 	return dataList, nil
 }
 
+// 获取broker列表
 func GetBrokers() (dataList []interface{}, err error) {
 	dataList = make([]interface{}, 0)
 	broker := KafkaBroker{
