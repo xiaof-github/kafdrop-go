@@ -42,9 +42,9 @@
                                     <tr>
                                     
                                         <td>
-                                            <a href="/admin/kafka/topicMessage"> 
+                                            <a href="/admin/kafka/topicMessage"  onclick="showMessage('{{.Name}}', '{{.PartitionSize}}');" >
                                                 {{.Name}}
-                                            </a>
+                                            </a>                                                
                                         </td>
                                         <td>{{.PartitionSize}}</td>                                        
                                     </tr>
@@ -79,8 +79,8 @@
             bootbox.setLocale("zh_CN");
         })
         //每次动态加载
-        function showEditWindow(Id) {
-            $('#my-modal').context = $("#my-modal").load('/admin/userInfo/edit?Id=' + Id);
+        function showMessage(topic) {
+            $('#my-modal').context = $("#my-modal").load('/admin/kafka/topicMessage?topic=' + topic);
             $('#my-modal').modal('show');
         }
 

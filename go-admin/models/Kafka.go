@@ -7,14 +7,14 @@ type KafkaBroker struct {
 }
 
 type KafkaTopic struct {
-	Name          string
+	Topic         string
 	PartitionSize int32
 }
 
 func GetTopics() (dataList []interface{}, err error) {
 	dataList = make([]interface{}, 0)
 	topic := KafkaTopic{
-		Name:          "PACKET",
+		Topic:         "PACKET",
 		PartitionSize: 10,
 	}
 
