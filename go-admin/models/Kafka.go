@@ -13,7 +13,7 @@ type KafkaTopic struct {
 
 type MessageBlock struct {
 	PartitionId int32
-	Message     string
+	Txt         string
 }
 
 type TopicMessages struct {
@@ -27,7 +27,7 @@ func GetTopicMessages(topic string) (topicMessage TopicMessages, err error) {
 	mb = make([]MessageBlock, 0)
 	mb = append(mb, MessageBlock{
 		PartitionId: 0,
-		Message:     "test",
+		Txt:         "test",
 	})
 	topicMessage = TopicMessages{
 		Topic:   topic,
