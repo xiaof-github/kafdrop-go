@@ -29,8 +29,8 @@ func (c *KafkaTopicController) TopicList() {
 func (c *KafkaTopicController) TopicMessage() {
 
 	//获得topic
-	topic, _ := c.GetString("TOPIC", "test")
-	data, err := models.GetTopicMessages()	
+	topic := c.GetString("TOPIC", "test")
+	data, err := models.GetTopicMessages(topic)	
 	if err == nil {
 		c.Data["topicMessage"] = data
 	}	
