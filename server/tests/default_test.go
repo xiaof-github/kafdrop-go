@@ -7,7 +7,7 @@ import (
 	"runtime"
 	"testing"
 
-	_ "github.com/golangpkg/go-admin/routers"
+	_ "github.com/xiaof-github/kafdrop-go/routers"
 
 	"github.com/astaxie/beego"
 	. "github.com/smartystreets/goconvey/convey"

@@ -3,7 +3,7 @@ package controllers
 import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
-	"github.com/golangpkg/go-admin/models"
+	"github.com/xiaof-github/kafdrop-go/models"
 )
 
 type KafkaTopicController struct {
