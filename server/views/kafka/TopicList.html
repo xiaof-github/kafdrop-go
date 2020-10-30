@@ -32,13 +32,7 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-xs-12">
-                        <div class="col-sm-1">
-                                <button onclick="showEditWindow(0);" role="button" class="btn btn-sm btn-primary" data-toggle="modal">
-                                    <i class="ace-icon fa fa-plus"></i>
-                                    增加
-                                </button>
-                        </div><!-- /.col -->
+                    <div class="col-xs-12">                        
                         <div class="col-sm-3">
                             <form action="/admin/userInfo/list" id="search-from" method="get">
                                 
@@ -55,40 +49,18 @@
                             <div class="col-xs-12">
                                 <table id="simple-table" class="table  table-bordered table-hover">
                                     <tr>
-                                        <th>Id</th>
-                                        <th>姓名</th>
-                                        <th>生日</th>
-                                        <th>性别</th>
-                                        <th>Email</th>
-                                        <th>电话</th>
-                                        <th>状态</th>
-                                        <th>创建时间</th>
-                                        <th>更新时间</th>
-                                        <th>操作</th>
+                                        <th>Topic</th>
+                                        <th>Partition</th>                                        
                                     </tr>
-                                    {{range .List}}
+                                    {{range .topicList}}
                                     <tr>
-                                        
-                                        <td>{{.Id}}</td>
-                                        <td>{{.Name}}</td>
-                                        <td>{{.BirthDate}}</td>
-                                        <td>{{.Gender}}</td>
-                                        <td>{{.Email}}</td>
-                                        <td>{{.Phone}}</td>
-                                        <td>{{.Status}}</td>
-                                        <td>{{date .CreateTime "2006-01-02 15:04:05"}}</td>
-                                        <td>{{date .UpdateTime "2006-01-02 15:04:05"}}</td>
-
+                                    
                                         <td>
-                                            <div class="hidden-sm hidden-xs btn-group">
-                                                <button class="btn btn-xs btn-info" onclick="showEditWindow('{{.Id}}');">
-                                                    <i class="ace-icon fa fa-pencil bigger-120"></i>
-                                                </button>
-                                                <button class="btn btn-xs btn-danger" onclick="deleteConfirm('{{.Id}}');">
-                                                    <i class="ace-icon fa fa-trash-o bigger-120"></i>
-                                                </button>
-                                            </div>
+                                            <a href="javascript:void(0)"  onclick="showMessage('{{.Topic}}');" >
+                                                {{.Topic}}
+                                            </a>                                            
                                         </td>
+                                        <td>{{.PartitionSize}}</td>                                        
                                     </tr>
                                     {{end}}
                                 </table>
@@ -121,8 +93,8 @@
             bootbox.setLocale("zh_CN");
         })
         //每次动态加载
-        function showEditWindow(Id) {
-            $('#my-modal').context = $("#my-modal").load('/admin/userInfo/edit?Id=' + Id);
+        function showMessage(Topic) {
+            $('#my-modal').context = $("#my-modal").load('/admin/kafka/topicMessage?topic=' + Topic);
             $('#my-modal').modal('show');
         }
 

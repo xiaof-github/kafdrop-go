@@ -3,10 +3,11 @@ package test
 import (
 	"net/http"
 	"net/http/httptest"
-	"testing"
-	"runtime"
 	"path/filepath"
-	_ "go-admin/routers"
+	"runtime"
+	"testing"
+
+	_ "github.com/xiaof-github/kafdrop-go/routers"
 
 	"github.com/astaxie/beego"
 	. "github.com/smartystreets/goconvey/convey"

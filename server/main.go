@@ -1,12 +1,12 @@
 package main
 
 import (
-	_ "github.com/golangpkg/go-admin/routers"
 	"github.com/astaxie/beego"
-	_ "github.com/mattn/go-sqlite3"
-	"github.com/astaxie/beego/orm"
-	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/context"
+	"github.com/astaxie/beego/logs"
+	"github.com/astaxie/beego/orm"
+	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/xiaof-github/kafdrop-go/routers"
 )
 
 func main() {
