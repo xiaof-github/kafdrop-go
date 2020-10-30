@@ -2,7 +2,7 @@ package routers
 
 import (
 	"github.com/astaxie/beego"
-	"github.com/xiaof-github/kafdrop-go/controllers"
+	"github.com/xiaof-github/kafdrop-go/server/controllers"
 )
 
 func init() {

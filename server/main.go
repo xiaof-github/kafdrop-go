@@ -6,7 +6,7 @@ import (
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
 	_ "github.com/mattn/go-sqlite3"
-	_ "github.com/xiaof-github/kafdrop-go/routers"
+	_ "github.com/xiaof-github/kafdrop-go/server/routers"
 )
 
 func main() {
