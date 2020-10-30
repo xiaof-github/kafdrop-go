@@ -5,7 +5,7 @@ go 1.13
 require (
 	github.com/Shopify/sarama v1.26.4
 	github.com/astaxie/beego v1.12.2
-	github.com/golangpkg/go-admin v0.0.0-20180411054557-32f53eb0dda0
+	github.com/xiaof/kafdrop-go v0.1.0
 	github.com/klauspost/compress v1.10.10 // indirect
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/pierrec/lz4 v2.5.2+incompatible // indirect
