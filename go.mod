@@ -1,4 +1,4 @@
-module github.com/xiaof-github/kafdrop-go/server
+module github.com/xiaof-github/kafdrop-go
 
 go 1.13
 
@@ -12,9 +12,3 @@ require (
 	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897 // indirect
 	golang.org/x/net v0.0.0-20201029221708-28c70e62bb1d // indirect
 )
-
-replace github.com/xiaof-github/kafdrop-go/server/models => ../models
-
-replace github.com/xiaof-github/kafdrop-go/server/controllers => ../controllers
-
-replace github.com/xiaof-github/kafdrop-go/server/routers => ./routers
