@@ -1,15 +1,29 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/context"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/spf13/viper"
 	_ "github.com/xiaof-github/kafdrop-go/routers"
 )
 
 func main() {
+
+	var config Config
+	viper.SetConfigName("app")
+	viper.AddConfigPath("conf")
+	err := viper.ReadInConfig()
+	if err != nil {
+		panic(fmt.Errorf("Fatal error config file: %s \n", err))
+	}
+	viper.Unmarshal(&config)
+	fmt.Println(config)
+
 
 	//注册sqlite3
 	orm.RegisterDataBase("default", "sqlite3", "go-admin.db")

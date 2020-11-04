@@ -1,0 +1,2 @@
+kafka:
+  addr: kafka-1:9092
