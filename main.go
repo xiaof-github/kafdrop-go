@@ -14,15 +14,15 @@ import (
 
 func main() {
 
-	var config Config
+	var addr string
 	viper.SetConfigName("app")
 	viper.AddConfigPath("conf")
 	err := viper.ReadInConfig()
 	if err != nil {
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
-	viper.Unmarshal(&config)
-	fmt.Println(config)
+	addr = viper.GetString("kafka.addr")
+	fmt.Println(addr)
 
 
 	//注册sqlite3
