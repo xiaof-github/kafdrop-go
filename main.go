@@ -24,6 +24,9 @@ func main() {
 	addr = viper.GetString("kafka.addr")
 	fmt.Println(addr)
 
+	// kafka客户端建立连接
+	client := kafgo.getClient(addr, client, offsetsInitial)
+
 
 	//注册sqlite3
 	orm.RegisterDataBase("default", "sqlite3", "go-admin.db")

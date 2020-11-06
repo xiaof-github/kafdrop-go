@@ -1,2 +1,4 @@
 kafka:
   addr: kafka-1:9092
+  verison: 2.1.1
+  offsetsInitial: oldest
