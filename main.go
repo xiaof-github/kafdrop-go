@@ -9,23 +9,34 @@ import (
 	"github.com/astaxie/beego/orm"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/spf13/viper"
+	"github.com/xiaof-github/kafdrop-go/kafgo"
 	_ "github.com/xiaof-github/kafdrop-go/routers"
 )
 
 func main() {
 
-	var addr string
+	
 	viper.SetConfigName("app")
 	viper.AddConfigPath("conf")
 	err := viper.ReadInConfig()
 	if err != nil {
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
-	addr = viper.GetString("kafka.addr")
+	addr := viper.GetString("kafka.addr")
+	version := viper.GetString("kafka.version")
+	offsetsInitial := viper.GetString("kafka.offsetsInitial")
+
+	var addrs []string = make([]string, 0)
+	addrs = append(addrs, addr)
 	fmt.Println(addr)
+	fmt.Println(kafgo.OFFSET_INIT)
 
 	// kafka客户端建立连接
-	client := kafgo.getClient(addr, client, offsetsInitial)
+	client, err := kafgo.GetClient(addrs, version, offsetsInitial)
+	if err != nil {
+		panic(fmt.Errorf("Fatal error get client: %s \n", err))
+	}
+	defer client.Close()
 
 
 	//注册sqlite3
