@@ -7,6 +7,9 @@ import (
 
 const OFFSET_INIT string = "oldest"
 
+var Brokers []*sarama.Broker
+var Client sarama.Client
+
 // get kafka client
 func GetClient(addrs []string, version string, offInit string) (sarama.Client, error) {
 	config := sarama.NewConfig()

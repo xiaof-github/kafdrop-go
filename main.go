@@ -2,7 +2,10 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
 
+	"github.com/Shopify/sarama"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/context"
 	"github.com/astaxie/beego/logs"
@@ -30,14 +33,20 @@ func main() {
 	addrs = append(addrs, addr)
 	fmt.Println(addr)
 	fmt.Println(kafgo.OFFSET_INIT)
-
+	// 打开调试信息
+	sarama.Logger = log.New(os.Stdout, "[sarama] ", log.LstdFlags)
+	
 	// kafka客户端建立连接
 	client, err := kafgo.GetClient(addrs, version, offsetsInitial)
 	if err != nil {
 		panic(fmt.Errorf("Fatal error get client: %s \n", err))
 	}
 	defer client.Close()
+	kafgo.Client = client
 
+	// 获取broker节点信息
+	brokers := client.Brokers()
+	kafgo.Brokers = brokers
 
 	//注册sqlite3
 	orm.RegisterDataBase("default", "sqlite3", "go-admin.db")
