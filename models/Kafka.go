@@ -1,5 +1,9 @@
 package models
 
+import (
+	"github.com/xiaof-github/kafdrop-go/kafgo"
+)
+
 type KafkaBroker struct {
 	Id         int32  // id
 	Addr       string // 地址
@@ -51,6 +55,8 @@ func GetTopics() (dataList []interface{}, err error) {
 // 获取broker列表
 func GetBrokers() (dataList []interface{}, err error) {
 	dataList = make([]interface{}, 0)
+
+	kafgo.GetKafkaBroker()
 	broker := KafkaBroker{
 		Id:         1,
 		Addr:       "192.168.1.1",
