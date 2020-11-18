@@ -1,7 +1,7 @@
 package models
 
 type KafkaBroker struct {
-	Id         int64  // id
+	Id         int32  // id
 	Addr       string // 地址
 	Controller bool   // 是否controller
 }

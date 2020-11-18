@@ -44,10 +44,6 @@ func main() {
 	defer client.Close()
 	kafgo.Client = client
 
-	// 获取broker节点信息
-	brokers := client.Brokers()
-	kafgo.Brokers = brokers
-
 	//注册sqlite3
 	orm.RegisterDataBase("default", "sqlite3", "go-admin.db")
 	//同步 ORM 对象和数据库

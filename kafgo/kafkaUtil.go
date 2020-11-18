@@ -34,8 +34,31 @@ func GetClient(addrs []string, version string, offInit string) (sarama.Client, e
 }
 
 // get kafka broker list
-func GetKafkaBroker() ([]models.KafkaBroker) {
-    // 获取broker节点信息
+func GetKafkaBroker() ([]*models.KafkaBroker) {
+    brList := make([]*models.KafkaBroker, 0)
+    // 获取controller信息
+    bc := new(models.KafkaBroker)
+    brk, ok := Client.Controller()
+    if ok != nil {
+        logs.Error("controller")
+        return nil
+    }
+    bc.Addr = brk.Addr()
+    bc.Controller = true
+    bc.Id = brk.ID()
+    brList = append(brList, bc)
+    // 获取broker节点信息    
     brokers := Client.Brokers()
-    
+    for _, brk := range brokers {
+        if brk.Addr() == bc.Addr {
+            continue
+        }
+        kb := new(models.KafkaBroker)
+        kb.Addr = brk.Addr()
+        kb.Controller = false
+        kb.Id = brk.ID()
+        brList = append(brList, kb)
+    }  
+
+    return brList
 }
