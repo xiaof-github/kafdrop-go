@@ -3,7 +3,6 @@ package kafgo
 import (
 	"github.com/Shopify/sarama"
 	"github.com/astaxie/beego/logs"
-	"github.com/xiaof-github/kafdrop-go/models"
 )
 
 const OFFSET_INIT string = "oldest"
@@ -34,31 +33,22 @@ func GetClient(addrs []string, version string, offInit string) (sarama.Client, e
 }
 
 // get kafka broker list
-func GetKafkaBroker() ([]*models.KafkaBroker) {
-    brList := make([]*models.KafkaBroker, 0)
-    // 获取controller信息
-    bc := new(models.KafkaBroker)
-    brk, ok := Client.Controller()
+func GetKafkaBroker() []*sarama.Broker {
+    brList := make([]*sarama.Broker, 0)
+    // 获取controller信息    
+    controller, ok := Client.Controller()
     if ok != nil {
         logs.Error("controller")
         return nil
-    }
-    bc.Addr = brk.Addr()
-    bc.Controller = true
-    bc.Id = brk.ID()
-    brList = append(brList, bc)
-    // 获取broker节点信息    
+    }    
+    brList = append(brList, controller)
+    // 获取broker节点信息，去除controller
     brokers := Client.Brokers()
-    for _, brk := range brokers {
-        if brk.Addr() == bc.Addr {
+    for _, br := range brokers {
+        if br.Addr() == controller.Addr() {
             continue
-        }
-        kb := new(models.KafkaBroker)
-        kb.Addr = brk.Addr()
-        kb.Controller = false
-        kb.Id = brk.ID()
-        brList = append(brList, kb)
-    }  
-
+        }        
+        brList = append(brList, br)
+    }
     return brList
 }
