@@ -32,14 +32,14 @@ func GetClient(addrs []string, version string, offInit string) (sarama.Client, e
     return client, err
 }
 
-// get kafka broker list
-func GetKafkaBroker() []*sarama.Broker {
+// get kafka broker list and controller id
+func GetKafkaBroker() ([]*sarama.Broker, int32) {
     brList := make([]*sarama.Broker, 0)
     // 获取controller信息    
     controller, ok := Client.Controller()
     if ok != nil {
         logs.Error("controller")
-        return nil
+        return brList, -1
     }    
     brList = append(brList, controller)
     // 获取broker节点信息，去除controller
@@ -50,5 +50,5 @@ func GetKafkaBroker() []*sarama.Broker {
         }        
         brList = append(brList, br)
     }
-    return brList
+    return brList, controller.ID()
 }
