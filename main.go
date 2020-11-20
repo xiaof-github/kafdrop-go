@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/Shopify/sarama"
 	"github.com/astaxie/beego"
@@ -29,9 +30,8 @@ func main() {
 	version := viper.GetString("kafka.version")
 	offsetsInitial := viper.GetString("kafka.offsetsInitial")
 
-	var addrs []string = make([]string, 0)
-	addrs = append(addrs, addr)
-	fmt.Println(addr)
+	addrs := strings.Split(addr, ",")	
+	fmt.Println(addrs)
 	fmt.Println(kafgo.OFFSET_INIT)
 	// 打开调试信息
 	sarama.Logger = log.New(os.Stdout, "[sarama] ", log.LstdFlags)

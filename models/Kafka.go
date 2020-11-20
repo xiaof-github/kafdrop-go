@@ -53,12 +53,12 @@ func GetTopics() (dataList []interface{}, err error) {
 }
 
 // 获取broker列表
-func GetBrokers() (dataList []interface{}, err error) {
-	var broker KafkaBroker	
+func GetBrokers() (dataList []interface{}, err error) {	
 	dataList = make([]interface{}, 0)
 	
 	brList, controllerId := kafgo.GetKafkaBroker()
 	for _, br := range brList {
+		broker := &KafkaBroker{}
 		broker.Id = br.ID()
 		broker.Addr = br.Addr()
 		if(broker.Id == controllerId) {
