@@ -23,7 +23,12 @@ func hello() {
 
 func main() {
 
-	go hello()
+	go hello()	
+	var atr []*Hello
+	for i := 0; i< 10; i++ {
+		a := new(Hello)
+		atr = append(atr, a)
+	}
 	time.Sleep(time.Second)
 	fmt.Println("main")
 }
