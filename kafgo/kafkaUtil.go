@@ -8,6 +8,7 @@ import (
 const OFFSET_INIT string = "oldest"
 
 var Client sarama.Client
+var Broker *sarama.Broker
 
 // get kafka client
 func GetClient(addrs []string, version string, offInit string) (sarama.Client, error) {
@@ -51,4 +52,14 @@ func GetKafkaBroker() ([]*sarama.Broker, int32) {
         brList = append(brList, br)
     }
     return brList, controller.ID()
+}
+
+// get kafka topic list
+func GetKafkaTopic () {
+    request := sarama.MetadataRequest{ /*Topics: []string{"abba"}*/ }
+    response, err := Broker.GetMetadata(&request)
+    if err != nil {
+        _ = Broker.Close()
+        panic(err)
+    }
 }

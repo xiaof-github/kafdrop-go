@@ -13,6 +13,7 @@ type KafkaBroker struct {
 type KafkaTopic struct {
 	Topic         string
 	PartitionSize int32
+	AvailableCount int64
 }
 
 type MessageBlock struct {

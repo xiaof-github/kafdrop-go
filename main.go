@@ -44,6 +44,14 @@ func main() {
 	defer client.Close()
 	kafgo.Client = client
 
+	// kafka broker
+	broker := sarama.NewBroker(kafkaHost)
+    err1 := broker.Open(config)
+    if err1 != nil {
+        panic(err1)
+	}
+	kafgo.Broker = broker
+
 	//注册sqlite3
 	orm.RegisterDataBase("default", "sqlite3", "go-admin.db")
 	//同步 ORM 对象和数据库
