@@ -55,12 +55,13 @@ func GetKafkaBroker() ([]*sarama.Broker, int32) {
 }
 
 // get kafka topic list
-func GetKafkaTopic () {
+func GetKafkaTopic () ([]*sarama.TopicMetadata) {
     request := sarama.MetadataRequest{ /*Topics: []string{"abba"}*/ }
     response, err := Broker.GetMetadata(&request)
     if err != nil {
         _ = Broker.Close()
         panic(err)
     }
-    
+
+    return response.Topics
 }
