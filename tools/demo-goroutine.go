@@ -1,4 +1,4 @@
-package maing
+package demo
 
 import (
 	"fmt"

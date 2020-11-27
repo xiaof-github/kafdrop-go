@@ -1,4 +1,4 @@
-package mainw
+package demo
 
 import (
 	"fmt"

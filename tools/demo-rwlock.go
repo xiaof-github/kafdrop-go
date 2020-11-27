@@ -1,4 +1,4 @@
-package mainr
+package demo
 
 import (
 	"fmt"

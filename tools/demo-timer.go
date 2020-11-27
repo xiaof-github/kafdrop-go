@@ -1,4 +1,4 @@
-package maint
+package demo
 
 import (
 	"fmt"

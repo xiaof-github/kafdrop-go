@@ -62,4 +62,5 @@ func GetKafkaTopic () {
         _ = Broker.Close()
         panic(err)
     }
+    
 }

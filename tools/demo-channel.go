@@ -1,4 +1,4 @@
-package maich
+package demo
 
 import (
 	"fmt"

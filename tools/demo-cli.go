@@ -1,4 +1,4 @@
-package maicli
+package demo
 
 import (
 	"bufio"
