@@ -65,3 +65,39 @@ func GetKafkaTopic () ([]*sarama.TopicMetadata) {
 
     return response.Topics
 }
+
+// get topic available msg count
+func GetTopicMsgNum(broker *sarama.Broker, partitionSize int32, topic string) int64 {
+    var i int32
+    var sum int64
+    // 当前Topic, partition可消费的最小偏移量
+    offsr := sarama.OffsetRequest{
+        Version: 1,		
+    }
+    offsrEnd := sarama.OffsetRequest{
+        Version: 1,		
+    }
+    len := partitionSize
+    
+    for i=0;i<len;i++{
+        offsr.AddBlock(topic, i, sarama.OffsetOldest, 999999999)		
+        offsrEnd.AddBlock(topic, i, sarama.OffsetNewest, 999999999)
+    }
+
+    // offsr.AddBlock(topic1, 3, sarama.OffsetNewest, 999999999)
+    res1, err1 := broker.GetAvailableOffsets(&offsr)
+    if err1 != nil {
+        panic("broker offset error")
+    }
+    res2, err2 := broker.GetAvailableOffsets(&offsrEnd)
+    if err2 != nil {
+        panic("broker offsetEnd error")
+    }
+    for i=0;i<len;i++{
+        r2 := res2.GetBlock(topic, i)
+        r1 := res1.GetBlock(topic, i)
+        sum += r2.Offset-r1.Offset
+    }        
+    
+    return sum
+}

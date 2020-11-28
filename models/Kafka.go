@@ -44,12 +44,15 @@ func GetTopicMessages(topic string) (topicMessage TopicMessages, err error) {
 // GetTopics: 获取topic列表
 func GetTopics() (dataList []interface{}, err error) {
 	dataList = make([]interface{}, 0)
-	topic := KafkaTopic{
-		Topic:         "PACKET",
-		PartitionSize: 10,
-	}
-
-	dataList = append(dataList, topic)
+	topics := kafgo.GetKafkaTopic()
+	for _, v := range topics {
+		topic := new(KafkaTopic)
+		topic.Topic = v.Name
+		topic.PartitionSize = int32(len(v.Partitions))
+		topic.AvailableCount = kafgo.GetTopicMsgNum(kafgo.Broker, topic.PartitionSize, v.Name)
+		dataList = append(dataList, topic)	
+    }
+	
 	return dataList, nil
 }
 
