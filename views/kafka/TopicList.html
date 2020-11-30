@@ -50,7 +50,8 @@
                                 <table id="simple-table" class="table  table-bordered table-hover">
                                     <tr>
                                         <th>Topic</th>
-                                        <th>Partition</th>                                        
+                                        <th>Partition</th>
+                                        <th>Count</th>
                                     </tr>
                                     {{range .topicList}}
                                     <tr>
@@ -60,7 +61,8 @@
                                                 {{.Topic}}
                                             </a>                                            
                                         </td>
-                                        <td>{{.PartitionSize}}</td>                                        
+                                        <td>{{.PartitionSize}}</td>
+                                        <td>{{.AvailableCount}}</td>
                                     </tr>
                                     {{end}}
                                 </table>

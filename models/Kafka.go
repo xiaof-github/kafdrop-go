@@ -49,7 +49,7 @@ func GetTopics() (dataList []interface{}, err error) {
 		topic := new(KafkaTopic)
 		topic.Topic = v.Name
 		topic.PartitionSize = int32(len(v.Partitions))
-		topic.AvailableCount = kafgo.GetTopicMsgNum(kafgo.Broker, topic.PartitionSize, v.Name)
+		topic.AvailableCount = kafgo.GetTopicMsgNum(kafgo.Broker, topic.PartitionSize, topic.Topic)
 		dataList = append(dataList, topic)	
     }
 	
