@@ -101,3 +101,12 @@ func GetTopicMsgNum(broker *sarama.Broker, partitionSize int32, topic string) in
     
     return sum
 }
+
+// get kafka topic msg
+func GetKafkaMsg(topic string) map[int][]string {
+	/* 
+	 * 从第一个分区开始消费，消费到200条消息停止；如果没有200条消息，接着消费下一个分区的消息，
+	 * 直到消费满200条消息为止	 
+	 */ 
+	return make(map[int][]string, 20)
+}

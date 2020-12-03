@@ -30,6 +30,7 @@ type TopicMessages struct {
 func GetTopicMessages(topic string) (topicMessage TopicMessages, err error) {
 	var mb []MessageBlock
 	mb = make([]MessageBlock, 0)
+	msg := kafgo.GetKafkaMsg(topic)
 	mb = append(mb, MessageBlock{
 		PartitionId: 0,
 		Txt:         "test1",
