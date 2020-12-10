@@ -18,7 +18,8 @@ type KafkaTopic struct {
 
 type MessageBlock struct {
 	PartitionId int32
-	Txt         string
+	Txt         []byte
+	Offset      int64
 }
 
 type TopicMessages struct {
@@ -30,11 +31,16 @@ type TopicMessages struct {
 func GetTopicMessages(topic string) (topicMessage TopicMessages, err error) {
 	var mb []MessageBlock
 	mb = make([]MessageBlock, 0)
-	msg := kafgo.GetKafkaMsg(topic)
-	mb = append(mb, MessageBlock{
-		PartitionId: 0,
-		Txt:         "test1",
-	})
+	msg, partitionNum := kafgo.GetKafkaMsg(topic)	
+	for i:=0;i<partitionNum;i++ {
+		for j:=0;j<len(msg[i]);j++ {
+			mb = append(mb, MessageBlock{
+				PartitionId: int32(i),
+				Txt:         msg[i][j].Value,
+				Offset:		 msg[i][j].Offset,
+			})
+		}
+	}	
 	topicMessage = TopicMessages{
 		Topic:   topic,
 		Message: mb,
@@ -43,14 +49,17 @@ func GetTopicMessages(topic string) (topicMessage TopicMessages, err error) {
 }
 
 // GetTopics: 获取topic列表
-func GetTopics() (dataList []interface{}, err error) {
+func GetTopics() (dataList []interface{}, err error) {		
+	// 获取topic列表
 	dataList = make([]interface{}, 0)
-	topics := kafgo.GetKafkaTopic()
+	topics := kafgo.GetKafkaTopic()	
 	for _, v := range topics {
 		topic := new(KafkaTopic)
 		topic.Topic = v.Name
 		topic.PartitionSize = int32(len(v.Partitions))
 		topic.AvailableCount = kafgo.GetTopicMsgNum(kafgo.Broker, topic.PartitionSize, topic.Topic)
+		// 缓存topic分区
+		kafgo.TopicPartiton[v.Name] = len(v.Partitions)
 		dataList = append(dataList, topic)	
     }
 	

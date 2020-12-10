@@ -49,8 +49,20 @@ func main() {
     err1 := broker.Open(config)
     if err1 != nil {
         panic(err1)
-    }
-    kafgo.Broker = broker
+	}
+	defer broker.Close()
+	kafgo.Broker = broker	
+
+	// kafka Consumer
+	consumer, err := sarama.NewConsumer(addrs, nil)
+    if err != nil {
+        panic(err)
+	}
+	kafgo.Consumer = consumer
+
+	// 缓存topic分区
+	topicPartiton := make(map[string]int)
+	kafgo.TopicPartiton = topicPartiton
 
     //注册sqlite3
     orm.RegisterDataBase("default", "sqlite3", "go-admin.db")
