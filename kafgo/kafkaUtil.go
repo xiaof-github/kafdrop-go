@@ -3,6 +3,7 @@ package kafgo
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/Shopify/sarama"
 	"github.com/astaxie/beego/logs"
@@ -115,7 +116,7 @@ func GetKafkaMsg(topic string) (map[int][]*sarama.ConsumerMessage, int) {
 	// 分区数量
 	partitionsNum,ok := TopicPartiton[topic]
 	if (ok) {
-		fmt.Println("topic: %s, partition size: %d", topic, partitionsNum)
+		fmt.Printf("topic: %s, partition size: %d\n", topic, partitionsNum)
 	} else {
 		logs.Error("don't have this topic", topic)
 		return make(map[int][]*sarama.ConsumerMessage), 0
@@ -145,44 +146,63 @@ func GetKafkaMsg(topic string) (map[int][]*sarama.ConsumerMessage, int) {
 	}
 	mblock := make(map[int][]*sarama.ConsumerMessage)
 
+	/**
+	 * 记录所有分区可消费记录数
+	 */
 	var offset int64
+	consumed := int64(0)
+	var offsetLast [partitionsNum]int64
 	for i:=0;i<partitionsNum;i++ {
 		block1 := res1.GetBlock(topic, int32(i))
 		block2 := res2.GetBlock(topic, int32(i))
 		len := block2.Offset - block1.Offset
 		if (len>int64(200/partitionsNum)) {
 			offset = block2.Offset - int64(200/partitionsNum)
+			len = int64(200/partitionsNum)
+			offsetLast[i] = block2.Offset
 		} else {
 			offset = block1.Offset
+		}
+		log.Printf("block1.Offset: %d, block2.Offset: %d, count: %d, partition: %d", 
+			block1.Offset, block2.Offset, block2.Offset - block1.Offset, partitionsNum)
+		if (offset <= 0) {
+			log.Printf("partition %d have no messages", i)
+			continue
 		}
 		partitionConsumer, err := Consumer.ConsumePartition(topic, int32(i), offset)
 		if err != nil {
 			panic(err)    
-		}
-		consumed := int64(0)
+		}		
 		for {
 			select {
 			case msg := <-partitionConsumer.Messages():
-				log.Printf("Consumed message partition %d\n offset %d\n key %s\n value %s\n", i, msg.Offset, msg.Key, msg.Value)
+				log.Printf("Consumed message partition: %d, offset: %d, key: %s, value: %s\n", i, msg.Offset, msg.Key, msg.Value)
 				consumed++;
 				mblock[i] = append(mblock[i], msg)
-				// time.Sleep(time.Second)            
+				time.Sleep(time.Second)
 			default :
-				log.Printf("consumed: %d", consumed)				
+				log.Printf("consumed: %d", consumed)
+				time.Sleep(time.Second)
 			}
-			if (consumed >= int64(200/partitionsNum)) {
+			if (consumed >= len) {
 				log.Printf("partition: %d, consumed: %d", i, consumed)
 				break
 			}                
 		}
-
-
 	}
 	
-
-	// 取第n个分区最近可消费的偏移量
-
-	// 从第一个分区开始消费，使用协程，多个分区消费的个数进行累加
+	/**
+	 * 根据所有分区可消费记录数，确定消费策略，开始消费
+	 */
+	 for i:=0;i<partitionsNum;i++ {
+		block1 := res1.GetBlock(topic, int32(i))
+		block2 := res2.GetBlock(topic, int32(i))
+		len := block2.Offset - block1.Offset		
+		offset = block1.Offset		
+		log.Printf("block1.Offset: %d, block2.Offset: %d, count: %d, partition: %d", 
+			block1.Offset, block2.Offset, block2.Offset - block1.Offset, partitionsNum)
+	}
+	
 
 	// 返回200条消息
 
