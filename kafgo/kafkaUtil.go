@@ -10,11 +10,13 @@ import (
 )
 
 const OFFSET_INIT string = "oldest"
+const CONSUME_NUM int = 200
 
 var Client sarama.Client
 var Broker *sarama.Broker
 var Consumer sarama.Consumer
 var TopicPartiton map[string]int
+
 
 // get kafka client
 func GetClient(addrs []string, version string, offInit string) (sarama.Client, error) {
@@ -109,11 +111,18 @@ func GetTopicMsgNum(broker *sarama.Broker, partitionSize int32, topic string) in
 }
 
 // get kafka topic msg
-func GetKafkaMsg(topic string) (map[int][]*sarama.ConsumerMessage, int) {
-	/* 
-	 * 从第一个分区开始消费，消费到200条消息停止；如果所有分区消费完之后，没有200条消息，则退出
-	 */ 
-	// 分区数量
+func GetKafkaMsg(topic string) (map[int][]*sarama.ConsumerMessage, int) {	
+	// 获取分区数量
+	// 下面代码迁移到Main函数中
+	for _, v := range topics {
+		topic := new(KafkaTopic)
+		topic.Topic = v.Name
+		topic.PartitionSize = int32(len(v.Partitions))
+		topic.AvailableCount = kafgo.GetTopicMsgNum(kafgo.Broker, topic.PartitionSize, topic.Topic)
+		// 缓存topic分区
+		kafgo.TopicPartiton[v.Name] = len(v.Partitions)
+		dataList = append(dataList, topic)	
+    }
 	partitionsNum,ok := TopicPartiton[topic]
 	if (ok) {
 		fmt.Printf("topic: %s, partition size: %d\n", topic, partitionsNum)
@@ -193,6 +202,9 @@ func GetKafkaMsg(topic string) (map[int][]*sarama.ConsumerMessage, int) {
 	
 	/**
 	 * 根据所有分区可消费记录数，确定消费策略，开始消费
+	 * 策略1：可消费分区每个分区足够消费，平均消费
+	 * 策略2：可消费分区累加不到200条消息，每个分区消费最大消息数，直到每个分区消费完
+	 * 策略3：可消费分区累加到200条消息，不满足策略1条件，从最大可消费分区开始消费，直到满200条
 	 */
 	 for i:=0;i<partitionsNum;i++ {
 		block1 := res1.GetBlock(topic, int32(i))
