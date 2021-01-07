@@ -2,8 +2,6 @@ package kafgo
 
 import (
 	"fmt"
-	"log"
-	"time"
 
 	"github.com/Shopify/sarama"
 	"github.com/astaxie/beego/logs"
@@ -130,7 +128,7 @@ func GetKafkaMsg(topic string) (map[int][]*sarama.ConsumerMessage, int) {
 		logs.Error("don't have this topic", topic)
 		return make(map[int][]*sarama.ConsumerMessage), 0
 	}
-	// 取第一个分区最近可消费的偏移量
+	// 取分区可消费的起始偏移量
 	offsr1 := sarama.OffsetRequest{
         Version: 1,		
 	}
@@ -142,7 +140,7 @@ func GetKafkaMsg(topic string) (map[int][]*sarama.ConsumerMessage, int) {
         panic("broker offset error")
 	}	
 
-	// 取最新可消费的偏移量
+	// 取分区可消费的终止偏移量
 	offsr2 := sarama.OffsetRequest{
         Version: 1,
 	}
@@ -157,66 +155,77 @@ func GetKafkaMsg(topic string) (map[int][]*sarama.ConsumerMessage, int) {
 
 	/**
 	 * 记录所有分区可消费记录数
+	 * 排序+总数
 	 */
-	var offset int64
+	var minOffset,totalOffset int64 = 0,0
 	consumed := int64(0)
-	var offsetLast [partitionsNum]int64
+	offsetSlice := make([]int64,0)
+	result := make([]int, 0)
 	for i:=0;i<partitionsNum;i++ {
 		block1 := res1.GetBlock(topic, int32(i))
 		block2 := res2.GetBlock(topic, int32(i))
-		len := block2.Offset - block1.Offset
-		if (len>int64(200/partitionsNum)) {
-			offset = block2.Offset - int64(200/partitionsNum)
-			len = int64(200/partitionsNum)
-			offsetLast[i] = block2.Offset
-		} else {
-			offset = block1.Offset
+		offsetSlice = append(offsetSlice, block2.Offset - block1.Offset)
+		totalOffset += block2.Offset - block1.Offset
+		if (minOffset > block2.Offset - block1.Offset) {
+			minOffset = block2.Offset - block1.Offset
 		}
-		log.Printf("block1.Offset: %d, block2.Offset: %d, count: %d, partition: %d", 
-			block1.Offset, block2.Offset, block2.Offset - block1.Offset, partitionsNum)
-		if (offset <= 0) {
-			log.Printf("partition %d have no messages", i)
-			continue
-		}
-		partitionConsumer, err := Consumer.ConsumePartition(topic, int32(i), offset)
-		if err != nil {
-			panic(err)    
-		}		
-		for {
-			select {
-			case msg := <-partitionConsumer.Messages():
-				log.Printf("Consumed message partition: %d, offset: %d, key: %s, value: %s\n", i, msg.Offset, msg.Key, msg.Value)
-				consumed++;
-				mblock[i] = append(mblock[i], msg)
-				time.Sleep(time.Second)
-			default :
-				log.Printf("consumed: %d", consumed)
-				time.Sleep(time.Second)
-			}
-			if (consumed >= len) {
-				log.Printf("partition: %d, consumed: %d", i, consumed)
-				break
-			}                
-		}
+		result = append(result, i)
+		logs.Info("block1.Offset: %d, block2.Offset: %d, count: %d, partition: %d", 
+			block1.Offset, block2.Offset, block2.Offset - block1.Offset, i)
 	}
+	// 记录从小到大排序后的分区号
+	sortMaoPao(offsetSlice, result)
+	logs.Info("order result: ", result)
 	
 	/**
 	 * 根据所有分区可消费记录数，确定消费策略，开始消费
 	 * 策略1：可消费分区每个分区足够消费，平均消费
 	 * 策略2：可消费分区累加不到200条消息，每个分区消费最大消息数，直到每个分区消费完
-	 * 策略3：可消费分区累加到200条消息，不满足策略1条件，从最大可消费分区开始消费，直到满200条
+	 * 策略3：可消费分区累加到200条消息，不满足策略1条件，从最大可消费分区开始消费，直到满200条，需要
+	 * 排序，从最少的分区开始消费
 	 */
-	 for i:=0;i<partitionsNum;i++ {
-		block1 := res1.GetBlock(topic, int32(i))
-		block2 := res2.GetBlock(topic, int32(i))
-		len := block2.Offset - block1.Offset		
-		offset = block1.Offset		
-		log.Printf("block1.Offset: %d, block2.Offset: %d, count: %d, partition: %d", 
-			block1.Offset, block2.Offset, block2.Offset - block1.Offset, partitionsNum)
-	}
 	
 
 	// 返回200条消息
+	// partitionConsumer, err := Consumer.ConsumePartition(topic, int32(i), offset)
+	// if err != nil {
+	// 	panic(err)    
+	// }		
+	// for {
+	// 	select {
+	// 	case msg := <-partitionConsumer.Messages():
+	// 		log.Printf("Consumed message partition: %d, offset: %d, key: %s, value: %s\n", i, msg.Offset, msg.Key, msg.Value)
+	// 		consumed++;
+	// 		mblock[i] = append(mblock[i], msg)
+	// 		time.Sleep(time.Second)
+	// 	default :
+	// 		log.Printf("consumed: %d", consumed)
+	// 		time.Sleep(time.Second)
+	// 	}
+	// 	if (consumed >= len) {
+	// 		log.Printf("partition: %d, consumed: %d", i, consumed)
+	// 		break
+	// 	}                
+	// }
 
 	return mblock, partitionsNum
+}
+
+func sortMaoPao(num []int64, result []int){
+	var tmp int64
+	var tmp1 int
+	for i:=len(num)-1;i>0;i-- {
+		for j:=0;j<i;j++ {
+			if (num[j] > num[j+1]){
+				// 值交换
+				tmp = num[j]
+				num[j] = num[j+1]
+				num[j+1] = num[j]
+				// 下标交换
+				tmp1 = result[j]
+				result[j] = result[j+1]
+				result[j+1] = tmp
+			}
+		}
+	}
 }
