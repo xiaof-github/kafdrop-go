@@ -13,6 +13,7 @@ const CONSUME_NUM int = 200
 var Client sarama.Client
 var Broker *sarama.Broker
 var Consumer sarama.Consumer
+// 记录每个topic分区的大小
 var TopicPartiton map[string]int
 
 
@@ -110,17 +111,7 @@ func GetTopicMsgNum(broker *sarama.Broker, partitionSize int32, topic string) in
 
 // get kafka topic msg
 func GetKafkaMsg(topic string) (map[int][]*sarama.ConsumerMessage, int) {	
-	// 获取分区数量
-	// 下面代码迁移到Main函数中
-	for _, v := range topics {
-		topic := new(KafkaTopic)
-		topic.Topic = v.Name
-		topic.PartitionSize = int32(len(v.Partitions))
-		topic.AvailableCount = kafgo.GetTopicMsgNum(kafgo.Broker, topic.PartitionSize, topic.Topic)
-		// 缓存topic分区
-		kafgo.TopicPartiton[v.Name] = len(v.Partitions)
-		dataList = append(dataList, topic)	
-    }
+	// 获取分区数量	
 	partitionsNum,ok := TopicPartiton[topic]
 	if (ok) {
 		fmt.Printf("topic: %s, partition size: %d\n", topic, partitionsNum)
@@ -158,7 +149,7 @@ func GetKafkaMsg(topic string) (map[int][]*sarama.ConsumerMessage, int) {
 	 * 排序+总数
 	 */
 	var minOffset,totalOffset int64 = 0,0
-	consumed := int64(0)
+	// consumed := int64(0)
 	offsetSlice := make([]int64,0)
 	result := make([]int, 0)
 	for i:=0;i<partitionsNum;i++ {
@@ -210,7 +201,9 @@ func GetKafkaMsg(topic string) (map[int][]*sarama.ConsumerMessage, int) {
 
 	return mblock, partitionsNum
 }
-
+/**
+ * num是排序后数组内容，result记录初始下标，返回排序后下标
+ */
 func sortMaoPao(num []int64, result []int){
 	var tmp int64
 	var tmp1 int
@@ -220,11 +213,11 @@ func sortMaoPao(num []int64, result []int){
 				// 值交换
 				tmp = num[j]
 				num[j] = num[j+1]
-				num[j+1] = num[j]
+				num[j+1] = tmp
 				// 下标交换
 				tmp1 = result[j]
 				result[j] = result[j+1]
-				result[j+1] = tmp
+				result[j+1] = tmp1
 			}
 		}
 	}

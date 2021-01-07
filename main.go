@@ -60,8 +60,13 @@ func main() {
 	}
 	kafgo.Consumer = consumer
 
-	// 缓存topic分区
-	topicPartiton := make(map[string]int)
+	// 缓存topic分区	
+	topicPartiton := make(map[string]int)	
+	topics := kafgo.GetKafkaTopic()	
+	for _, v := range topics {		
+		// topic的分区个数
+		topicPartiton[v.Name] = len(v.Partitions)		
+	}
 	kafgo.TopicPartiton = topicPartiton
 
     //注册sqlite3
