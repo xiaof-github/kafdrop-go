@@ -59,7 +59,7 @@ func GetTopics() (dataList []interface{}, err error) {
 		topic.PartitionSize = int32(len(v.Partitions))
 		topic.AvailableCount = kafgo.GetTopicMsgNum(kafgo.Broker, topic.PartitionSize, topic.Topic)
 		// 缓存topic分区
-		kafgo.TopicPartiton[v.Name] = len(v.Partitions)
+		kafgo.TopicPartition[v.Name] = len(v.Partitions)
 		dataList = append(dataList, topic)	
     }
 	
