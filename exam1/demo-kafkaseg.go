@@ -22,11 +22,28 @@ func main() {
 	// 	panic(err)
 	// }
 
-	for i := int32(0); i < 20; i++ {
-		offsetEarliest, _ := broker.OffsetEarliest("MSG_EXAMPLE", i)
-		offsetLatest, _ := broker.OffsetLatest("MSG_EXAMPLE", i)
-		println("partition: ", i, " start: ", offsetEarliest, " end: ", offsetLatest)
+	// get topics
+	resp, err := broker.Metadata()
+	for i := 0; i < len(resp.Topics); i++ {
+		println("resp topic: ", resp.Topics[i].Name)
+		tname, _ := broker.PartitionCount(resp.Topics[i].Name)
+		println("topic partition: ", tname)
 	}
+
+	for i := 0; i < len(resp.Brokers); i++ {
+		println("resp broker: ", resp.Brokers[i].NodeID, resp.Brokers[i].Host, resp.Brokers[i].Port)
+		println("resp controller id: ", resp.ControllerID)
+	}
+	
+
+	// get offsets
+	// for i := int32(0); i < 20; i++ {
+	// 	offsetEarliest, _ := broker.OffsetEarliest("MSG_EXAMPLE", i)
+	// 	offsetLatest, _ := broker.OffsetLatest("MSG_EXAMPLE", i)
+	// 	println("partition: ", i, " start: ", offsetEarliest, " end: ", offsetLatest)
+	// }
+
+
 	
 	// read all messages
 	// for {

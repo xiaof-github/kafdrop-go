@@ -1,6 +1,9 @@
 package models
 
 import (
+	"strconv"
+
+	"github.com/astaxie/beego/logs"
 	"github.com/xiaof-github/kafdrop-go/kafgo"
 )
 
@@ -56,10 +59,14 @@ func GetTopics() (dataList []interface{}, err error) {
 	for _, v := range topics {
 		topic := new(KafkaTopic)
 		topic.Topic = v.Name
-		topic.PartitionSize = int32(len(v.Partitions))
-		topic.AvailableCount = kafgo.GetTopicMsgNum(kafgo.Broker, topic.PartitionSize, topic.Topic)
+		count, err := kafgo.Broker.PartitionCount(v.Name)
+		if err != nil {
+			logs.Info("err :", err)
+		}
+		topic.PartitionSize = count
+		topic.AvailableCount = kafgo.GetTopicMsgNum(v.Name, count)
 		// 缓存topic分区
-		kafgo.TopicPartition[v.Name] = len(v.Partitions)
+		kafgo.TopicPartition[v.Name] = count
 		dataList = append(dataList, topic)	
     }
 	
@@ -70,11 +77,11 @@ func GetTopics() (dataList []interface{}, err error) {
 func GetBrokers() (dataList []interface{}, err error) {	
 	dataList = make([]interface{}, 0)
 	
-	brList, controllerId := kafgo.GetKafkaBroker()
-	for _, br := range brList {
+	brokerL, controllerId := kafgo.GetKafkaBroker()
+	for _, br := range brokerL {
 		broker := &KafkaBroker{}
-		broker.Id = br.ID()
-		broker.Addr = br.Addr()
+		broker.Id = br.NodeID
+		broker.Addr = br.Host + ":" + strconv.Itoa(int(br.Port))
 		if(broker.Id == controllerId) {
 			broker.Controller = true
 		}

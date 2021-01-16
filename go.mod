@@ -9,6 +9,7 @@ require (
 	github.com/golang/snappy v0.0.2 // indirect
 	github.com/klauspost/compress v1.11.2 // indirect
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
+	github.com/optiopay/kafka v2.0.7+incompatible
 	github.com/optiopay/kafka/v2 v2.1.1
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/segmentio/kafka-go v0.4.8
