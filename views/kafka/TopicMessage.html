@@ -36,13 +36,14 @@
                                 <table id="simple-table" class="table  table-bordered table-hover">
                                     <tr>
                                         <th>PartitionId</th>
+                                        <th>Offset</th>
                                         <th>Message</th>                                        
                                     </tr>
                                     {{range .topicMessage.Message}}
                                     <tr>                                    
                                         <td>{{.PartitionId}}</td>
-                                        <td>{{.Txt}}</td>
                                         <td>{{.Offset}}</td>
+                                        <td>{{.Txt}}</td>                                        
                                     </tr>
                                     {{end}}
                                 </table>

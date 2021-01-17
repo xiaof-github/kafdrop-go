@@ -21,7 +21,7 @@ type KafkaTopic struct {
 
 type MessageBlock struct {
 	PartitionId int32
-	Txt         []byte
+	Txt         string
 	Offset      int64
 }
 
@@ -35,11 +35,11 @@ func GetTopicMessages(topic string) (topicMessage TopicMessages, err error) {
 	var mb []MessageBlock
 	mb = make([]MessageBlock, 0)
 	msg, partitionNum := kafgo.GetKafkaMsg(topic)	
-	for i:=0;i<partitionNum;i++ {
+	for i:=int32(0);i<partitionNum;i++ {
 		for j:=0;j<len(msg[i]);j++ {
 			mb = append(mb, MessageBlock{
-				PartitionId: int32(i),
-				Txt:         msg[i][j].Value,
+				PartitionId: msg[i][j].Partition,
+				Txt:         string(msg[i][j].Value),
 				Offset:		 msg[i][j].Offset,
 			})
 		}

@@ -2,14 +2,17 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/Shopify/sarama"
 )
 
 // 封装发送消息C
-func sendCMsg(msg *sarama.ProducerMessage, producer sarama.SyncProducer) {
-	value := "{\"app\":\"SDFA\",\"app_version\":\"V1.1.0\"}"
+func sendCMsg(msg *sarama.ProducerMessage, producer sarama.SyncProducer, i int) {
+	value := "{\"app\":\"SDFA\",\"app_version\":\"V1.1.0\""
+	
+	value = value + ",\"id\":\"" + strconv.Itoa(i) + "\"}"
 	msgTopic := "MSG_EXAMPLE"
 	fmt.Println("msgTopic = ",msgTopic,",value = ",value)
 	msg.Topic = msgTopic
@@ -53,9 +56,10 @@ func main() {
 		Partition: int32(20),//
 		Key:        nil,//
 	}
-
+	var i int = 0
 	for {		
-		sendCMsg(msg, producer)
+		sendCMsg(msg, producer, i)
+		i++
 		time.Sleep(10*time.Millisecond)
 	}
 }

@@ -34,7 +34,6 @@ func (c *KafkaTopicController) TopicMessage() {
 	data, err := models.GetTopicMessages(topic)	
 	if err == nil {
 		c.Data["topicMessage"] = data
-	}	
-	logs.Info("topicMessage :", data)	
+	}
 	c.TplName = "kafka/TopicMessage.html"
 }

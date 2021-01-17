@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/optiopay/kafka/v2"
 )
 
@@ -15,25 +17,25 @@ func main() {
 	defer broker.Close()
 
 	// create new consumer
-	// conf := kafka.NewConsumerConf("MSG_EXAMPLE", 0)
-	// conf.StartOffset = kafka.StartOffsetOldest
-	// consumer, err := broker.Consumer(conf)
-	// if err != nil {
-	// 	panic(err)
-	// }
+	conf := kafka.NewConsumerConf("MSG_EXAMPLE", 0)
+	conf.StartOffset = kafka.StartOffsetOldest
+	consumer, err := broker.Consumer(conf)
+	if err != nil {
+		panic(err)
+	}
 
 	// get topics
-	resp, err := broker.Metadata()
-	for i := 0; i < len(resp.Topics); i++ {
-		println("resp topic: ", resp.Topics[i].Name)
-		tname, _ := broker.PartitionCount(resp.Topics[i].Name)
-		println("topic partition: ", tname)
-	}
+	// resp, err := broker.Metadata()
+	// for i := 0; i < len(resp.Topics); i++ {
+	// 	println("resp topic: ", resp.Topics[i].Name)
+	// 	tname, _ := broker.PartitionCount(resp.Topics[i].Name)
+	// 	println("topic partition: ", tname)
+	// }
 
-	for i := 0; i < len(resp.Brokers); i++ {
-		println("resp broker: ", resp.Brokers[i].NodeID, resp.Brokers[i].Host, resp.Brokers[i].Port)
-		println("resp controller id: ", resp.ControllerID)
-	}
+	// for i := 0; i < len(resp.Brokers); i++ {
+	// 	println("resp broker: ", resp.Brokers[i].NodeID, resp.Brokers[i].Host, resp.Brokers[i].Port)
+	// 	println("resp controller id: ", resp.ControllerID)
+	// }
 	
 
 	// get offsets
@@ -46,17 +48,17 @@ func main() {
 
 	
 	// read all messages
-	// for {
-	// 	msg, err := consumer.Consume()
-	// 	if err != nil {
-	// 		if err == kafka.ErrNoData {
-	// 			break
-	// 		}
-	// 		panic(err)
-	// 	}
-
-	// 	fmt.Printf("message: %#v", msg)
-	// }
+	for {
+		msg, err := consumer.Consume()
+		if err != nil {
+			if err == kafka.ErrNoData {
+				break
+			}
+			panic(err)
+		}
+		str := string(msg.Value)
+		fmt.Println("Partition: ", msg.Partition, " Offset: ", msg.Offset, " Value: ", str)
+	}
 
 	
 
