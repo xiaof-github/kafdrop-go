@@ -10,7 +10,7 @@ func main() {
 
 	// connect to kafka cluster
 	// addresses := []string{"10.155.200.106:9092", "10.155.200.107:9092", "10.155.200.108:9092"}
-	addresses := []string{"152.136.200.213:9092"}
+	addresses := []string{"127.0.0.1:9092"}
 	broker, err := kafka.Dial(addresses, kafka.NewBrokerConf("test"))
 	if err != nil {
 		panic(err)
