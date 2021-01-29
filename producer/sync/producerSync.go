@@ -42,8 +42,8 @@ func main() {
 	config.Producer.Return.Successes = true
 
 	// 使用给定代理地址和配置创建一个同步生产者
-	// producer, err := sarama.NewSyncProducer([]string{"kafka-1:9092"}, config)
-	producer, err := sarama.NewSyncProducer([]string{"10.155.200.106:9092","10.155.200.107:9092","10.155.200.108:9092"}, config)
+	producer, err := sarama.NewSyncProducer([]string{"kafka-1:9092"}, config)
+	// producer, err := sarama.NewSyncProducer([]string{"10.155.200.106:9092","10.155.200.107:9092","10.155.200.108:9092"}, config)
 	if err != nil {
 		panic(err)
 	}
@@ -60,6 +60,6 @@ func main() {
 	for {		
 		sendCMsg(msg, producer, i)
 		i++
-		time.Sleep(10*time.Millisecond)
+		time.Sleep(60*time.Second)
 	}
 }

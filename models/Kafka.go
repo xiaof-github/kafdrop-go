@@ -56,6 +56,7 @@ func GetTopics() (dataList []interface{}, err error) {
 	// 获取topic列表
 	dataList = make([]interface{}, 0)
 	topics := kafgo.GetKafkaTopic()	
+	logs.Info("topics: ", topics);	
 	for _, v := range topics {
 		topic := new(KafkaTopic)
 		topic.Topic = v.Name
@@ -64,7 +65,12 @@ func GetTopics() (dataList []interface{}, err error) {
 			logs.Info("err :", err)
 		}
 		topic.PartitionSize = count
-		topic.AvailableCount = kafgo.GetTopicMsgNum(v.Name, count)
+		if (v.Name == "__consumer_offsets"){
+			// 返回太慢，不计算
+			topic.AvailableCount = -1
+		} else {
+			topic.AvailableCount = kafgo.GetTopicMsgNum(v.Name, count)
+		}		
 		// 缓存topic分区
 		kafgo.TopicPartition[v.Name] = count
 		dataList = append(dataList, topic)	

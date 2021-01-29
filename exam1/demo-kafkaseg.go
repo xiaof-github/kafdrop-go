@@ -9,7 +9,8 @@ import (
 func main() {
 
 	// connect to kafka cluster
-	addresses := []string{"10.155.200.106:9092", "10.155.200.107:9092", "10.155.200.108:9092"}
+	// addresses := []string{"10.155.200.106:9092", "10.155.200.107:9092", "10.155.200.108:9092"}
+	addresses := []string{"152.136.200.213:9092"}
 	broker, err := kafka.Dial(addresses, kafka.NewBrokerConf("test"))
 	if err != nil {
 		panic(err)
@@ -23,14 +24,13 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
-	// get topics
-	// resp, err := broker.Metadata()
-	// for i := 0; i < len(resp.Topics); i++ {
-	// 	println("resp topic: ", resp.Topics[i].Name)
-	// 	tname, _ := broker.PartitionCount(resp.Topics[i].Name)
-	// 	println("topic partition: ", tname)
-	// }
+	
+	resp, err := broker.Metadata()
+	for i := 0; i < len(resp.Topics); i++ {
+		println("resp topic: ", resp.Topics[i].Name)
+		tname, _ := broker.PartitionCount(resp.Topics[i].Name)
+		println("topic partition: ", tname)
+	}
 
 	// for i := 0; i < len(resp.Brokers); i++ {
 	// 	println("resp broker: ", resp.Brokers[i].NodeID, resp.Brokers[i].Host, resp.Brokers[i].Port)
