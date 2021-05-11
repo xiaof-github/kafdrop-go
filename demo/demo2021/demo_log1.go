@@ -3,6 +3,7 @@ package main
 import (
 	"io"
 	"os"
+	"fmt"
 
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -27,6 +28,13 @@ func init() {
 	log.SetOutput(fileAndStdoutWriter)
 }
 
+func pp() *int {
+	var pint *int
+	return pint
+}
+
 func main() {
 	log.Info("hello, world")
+	
+	fmt.Println("point: ", pp())
 }
