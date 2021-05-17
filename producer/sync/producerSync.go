@@ -4,16 +4,17 @@ import (
 	"fmt"
 	"strconv"
 	"time"
+	"os"	
 
 	"github.com/Shopify/sarama"
 )
 
 // 封装发送消息C
-func sendCMsg(msg *sarama.ProducerMessage, producer sarama.SyncProducer, i int) {
-	value := "{\"app\":\"SDFA\",\"app_version\":\"V1.1.0\""
+func sendCMsg(msg *sarama.ProducerMessage, producer sarama.SyncProducer, msgTopic string, data string, i int) {
+	value := "{\"version\":\"V1.0.0\""
 	
-	value = value + ",\"id\":\"" + strconv.Itoa(i) + "\"}"
-	msgTopic := "MSG_EXAMPLE"
+	value = value + ",\"data\":\"" + data + "\""
+	value = value + ",\"id\":\"" + strconv.Itoa(i) + "\"}"	
 	fmt.Println("msgTopic = ",msgTopic,",value = ",value)
 	msg.Topic = msgTopic
 	//将字符串转换为字节数组
@@ -33,6 +34,14 @@ func sendCMsg(msg *sarama.ProducerMessage, producer sarama.SyncProducer, i int) 
 
 
 func main() {
+	if len(os.Args) < 4 {
+		fmt.Printf("Usage: %s addr:port topic msg\n", os.Args[0])
+		os.Exit(1)
+	}
+	addr := os.Args[1]
+	topic := os.Args[2]
+	data := os.Args[3]
+
 	config := sarama.NewConfig()
 	// 等待服务器所有副本都保存成功后的响应
 	config.Producer.RequiredAcks = sarama.WaitForLocal
@@ -42,7 +51,7 @@ func main() {
 	config.Producer.Return.Successes = true
 
 	// 使用给定代理地址和配置创建一个同步生产者
-	producer, err := sarama.NewSyncProducer([]string{"10.155.200.105:9092"}, config)
+	producer, err := sarama.NewSyncProducer([]string{addr}, config)
 	// producer, err := sarama.NewSyncProducer([]string{"10.155.200.106:9092","10.155.200.107:9092","10.155.200.108:9092"}, config)
 	if err != nil {
 		panic(err)
@@ -58,8 +67,8 @@ func main() {
 	}
 	var i int = 0
 	for {		
-		sendCMsg(msg, producer, i)
+		sendCMsg(msg, producer, topic, data, i)
 		i++
-		time.Sleep(60*time.Second)
+		time.Sleep(3*time.Second)
 	}
 }

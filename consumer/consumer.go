@@ -2,15 +2,23 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/optiopay/kafka/v2"	
 )
 
 func main() {
 
+	if len(os.Args) < 3 {
+		fmt.Printf("Usage: %s addr:port topic\n", os.Args[0])
+		os.Exit(1)
+	}
+	addr := os.Args[1]
+	topic := os.Args[2]
+
 	// connect to kafka cluster
 	// addresses := []string{"10.155.200.106:9092", "10.155.200.107:9092", "10.155.200.108:9092"}
-	addresses := []string{"152.136.200.213:9092"}
+	addresses := []string{addr}
 	broker, err := kafka.Dial(addresses, kafka.NewBrokerConf("test"))
 	if err != nil {
 		panic(err)
@@ -24,31 +32,17 @@ func main() {
 		println("topic partition: ", tname)
 	}
 
-	count, err := broker.PartitionCount("msg_test")
+	count, err := broker.PartitionCount(topic)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println("topic: ", count, "count: ", count)
 
-	// for i := 0; i < len(resp.Brokers); i++ {
-	// 	println("resp broker: ", resp.Brokers[i].NodeID, resp.Brokers[i].Host, resp.Brokers[i].Port)
-	// 	println("resp controller id: ", resp.ControllerID)
-	// }
-	
-
-	// get offsets
-	// for i := int32(0); i < 20; i++ {
-	// 	offsetEarliest, _ := broker.OffsetEarliest("MSG_EXAMPLE", i)
-	// 	offsetLatest, _ := broker.OffsetLatest("MSG_EXAMPLE", i)
-	// 	println("partition: ", i, " start: ", offsetEarliest, " end: ", offsetLatest)
-	// }
-
-
 	// read all messages
-	for j:=0;j<1;j++{		
+	for j:=0;j<10;j++{		
 		for i:=int32(0);i<count;i++ {
 			
-			conf := kafka.NewConsumerConf("msg_test", i)
+			conf := kafka.NewConsumerConf(topic, i)
 			conf.StartOffset = kafka.StartOffsetNewest
 			consumer, err := broker.Consumer(conf)
 			if err != nil {
