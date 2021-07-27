@@ -25,10 +25,12 @@ func reqServer() {
     if err != nil {
         log.Fatal(err)
     }
-    var v interface{}
-    r.ToJSON(&v)
+    v, err := r.ToString()
+    if err != nil {
+        log.Fatal(err)
+    }
     fmt.Printf("%v\n", r) // 打印详细信息
-    fmt.Printf("%v\n", v)
+    fmt.Println(v)
 
     resp := r.Response()
     fmt.Println(resp.StatusCode)
