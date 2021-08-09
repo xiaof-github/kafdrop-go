@@ -6,6 +6,7 @@ require (
 	github.com/Shopify/sarama v1.27.2
 	github.com/StackExchange/wmi v0.0.0-20210224194228-fe8f1750fd46
 	github.com/astaxie/beego v1.12.2
+	github.com/bitly/go-simplejson v0.5.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/go-ole/go-ole v1.2.5 // indirect
 	github.com/golang/snappy v0.0.2 // indirect
