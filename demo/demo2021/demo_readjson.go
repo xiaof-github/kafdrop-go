@@ -30,7 +30,7 @@ func main() {
 
     var conf []SoftwareConf
     var processConf []string
-    var ConfName string = "software.json"
+    var ConfName string = "a.json"
 
     err := ReadConfFromJson(ConfName, &conf)
     if err != nil {

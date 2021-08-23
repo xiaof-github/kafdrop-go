@@ -10,6 +10,7 @@ require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/go-ole/go-ole v1.2.5 // indirect
 	github.com/golang/snappy v0.0.2 // indirect
+	github.com/imroc/req v0.3.0 // indirect
 	github.com/klauspost/compress v1.11.2 // indirect
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/optiopay/kafka/v2 v2.1.1
